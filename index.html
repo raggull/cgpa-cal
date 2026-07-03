@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Semester II — Grade Entry</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#152420;
+    --ink-soft:#5b6d64;
+    --canvas:#f3f6f2;
+    --card:#ffffff;
+    --line:#dde5dc;
+    --green:#1f7a4d;
+    --green-deep:#155c39;
+    --green-tint:#e6f2ea;
+    --amber:#b5791f;
+    --red:#c1443c;
+    --red-tint:#fbeceb;
+    --radius:10px;
+    --font-display:'Sora',sans-serif;
+    --font-body:'Inter',sans-serif;
+    --font-mono:'JetBrains Mono',monospace;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--canvas);
+    color:var(--ink);
+    font-family:var(--font-body);
+    padding:40px 20px 80px;
+  }
+  .wrap{max-width:880px;margin:0 auto;}
+
+  header.page{margin-bottom:32px;}
+  .eyebrow{
+    font-family:var(--font-mono);
+    font-size:12px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--green-deep);
+    background:var(--green-tint);
+    display:inline-block;
+    padding:4px 10px;
+    border-radius:100px;
+    margin-bottom:14px;
+  }
+  h1{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:32px;
+    margin:0 0 8px;
+    letter-spacing:-0.01em;
+  }
+  .sub{color:var(--ink-soft);font-size:15px;max-width:56ch;line-height:1.5;}
+
+  .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:24px;
+    margin-bottom:20px;
+  }
+  .card h2{
+    font-family:var(--font-display);
+    font-size:15px;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    color:var(--ink-soft);
+    margin:0 0 16px;
+  }
+
+  /* register number */
+  .reg-row{display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap;}
+  .reg-field{flex:1;min-width:240px;}
+  label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--ink);}
+  input#regNo{
+    width:100%;
+    font-family:var(--font-mono);
+    font-size:17px;
+    letter-spacing:.03em;
+    padding:12px 14px;
+    border:1.5px solid var(--line);
+    border-radius:8px;
+    background:#fbfcfb;
+    color:var(--ink);
+    transition:border-color .15s ease, background .15s ease;
+  }
+  input#regNo:focus{outline:none;border-color:var(--green);}
+  input#regNo.valid{border-color:var(--green);background:var(--green-tint);}
+  input#regNo.invalid{border-color:var(--red);background:var(--red-tint);}
+  .hint{font-size:12px;color:var(--ink-soft);margin-top:6px;font-family:var(--font-mono);}
+  .hint.err{color:var(--red);}
+
+  /* subject table */
+  table{width:100%;border-collapse:collapse;}
+  thead th{
+    text-align:left;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    color:var(--ink-soft);
+    font-weight:600;
+    padding:0 10px 10px;
+    border-bottom:1px solid var(--line);
+  }
+  tbody td{
+    padding:12px 10px;
+    border-bottom:1px solid var(--line);
+    font-size:14px;
+    vertical-align:middle;
+  }
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr.audit-row{background:#fafbf9;}
+  .code{font-family:var(--font-mono);font-size:12.5px;color:var(--ink-soft);}
+  .title-cell .name{font-weight:500;}
+  .title-cell .cat{
+    font-family:var(--font-mono);
+    font-size:10.5px;
+    color:var(--green-deep);
+    background:var(--green-tint);
+    padding:1px 6px;
+    border-radius:100px;
+    margin-left:8px;
+  }
+
+  /* credit weight dots — encode how much each course counts */
+  .weight{display:flex;gap:3px;align-items:center;}
+  .weight .dot{
+    width:7px;height:7px;border-radius:50%;
+    background:var(--line);
+  }
+  .weight .dot.on{background:var(--green);}
+  .weight .num{font-family:var(--font-mono);font-size:12px;color:var(--ink-soft);margin-left:6px;}
+
+  select.grade{
+    font-family:var(--font-mono);
+    font-size:14px;
+    padding:7px 10px;
+    border:1.5px solid var(--line);
+    border-radius:6px;
+    background:#fff;
+    color:var(--ink);
+    min-width:88px;
+  }
+  select.grade:focus{outline:none;border-color:var(--green);}
+
+  .audit-tag{font-family:var(--font-mono);font-size:10.5px;color:var(--amber);}
+
+  /* action + result */
+  .action-row{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;}
+  button#calcBtn{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:15px;
+    background:var(--green);
+    color:#fff;
+    border:none;
+    padding:13px 26px;
+    border-radius:8px;
+    cursor:pointer;
+    transition:background .15s ease, transform .1s ease;
+  }
+  button#calcBtn:hover{background:var(--green-deep);}
+  button#calcBtn:active{transform:scale(0.98);}
+  button#calcBtn:disabled{background:#a9b8ae;cursor:not-allowed;}
+  #formMsg{font-size:13px;color:var(--red);}
+
+  #result{
+    display:none;
+    margin-top:20px;
+    padding-top:20px;
+    border-top:1px dashed var(--line);
+  }
+  .result-grid{display:flex;gap:16px;flex-wrap:wrap;}
+  .stat{
+    flex:1;min-width:180px;
+    background:var(--green-tint);
+    border-radius:8px;
+    padding:16px 18px;
+  }
+  .stat .label{font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--green-deep);}
+  .stat .value{font-family:var(--font-display);font-size:30px;font-weight:700;color:var(--ink);margin-top:4px;}
+  .stat .note{font-size:12px;color:var(--ink-soft);margin-top:6px;}
+  #serverNote{font-size:12.5px;color:var(--amber);margin-top:12px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="page">
+    <span class="eyebrow">CGPA CALCULATOR - CSE</span>
+    <h1>Semester II Grade Entry</h1>
+    <p class="sub">Created By RAGUL A - CSE</p>
+  </header>
+
+  <div class="card">
+    <h2>Student</h2>
+    <div class="reg-row">
+      <div class="reg-field">
+        <label for="regNo">Register number</label>
+        <input type="text" id="regNo" placeholder="714025104XXX" maxlength="12" autocomplete="off">
+        <div class="hint" id="regHint">Format: 714025104 followed by 3 digits (12 digits total)</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Courses</h2>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:24px;">#</th>
+          <th>Course</th>
+          <th style="width:110px;">Credit weight</th>
+          <th style="width:100px;">Grade</th>
+        </tr>
+      </thead>
+      <tbody id="subjectBody"></tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="action-row">
+      <div id="formMsg"></div>
+      <button id="calcBtn">Calculate CGPA</button>
+    </div>
+
+    <div id="result">
+      <div class="result-grid">
+        <div class="stat">
+          <div class="label">Semester II SGPA</div>
+          <div class="value" id="sgpaValue">—</div>
+          <div class="note" id="sgpaNote">Weighted across 22 credits</div>
+        </div>
+        <div class="stat">
+          <div class="label">Overall CGPA</div>
+          <div class="value" id="cgpaValue">—</div>
+          <div class="note" id="cgpaNote">Across all semesters on record</div>
+        </div>
+      </div>
+      <div id="serverNote"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // ---- Grade scale -------------------------------------------------
+  // AR2025 regulation, confirmed formula:
+  // S=10, A+=9, A=8, B+=7, B=6.5, C+=6, C=5, else 0.
+  const GRADE_POINTS = { 'S':10, 'A+':9, 'A':8, 'B+':7, 'B':6.5, 'C+':6, 'C':5, 'U':0 };
+  const GRADE_OPTIONS = Object.keys(GRADE_POINTS);
+  const AUDIT_OPTIONS = ['S','U']; // Satisfactory / Unsatisfactory — not credit-weighted
+
+  // ---- Semester II course list (same order as the curriculum) ------
+  const SUBJECTS = [
+    { code:'25ENH201', title:'English for Career Growth', category:'HS', credit:3 },
+    { code:'25MAB201', title:'Discrete Mathematics And Graph Theory', category:'BS', credit:3 },
+    { code:'25TAH201', title:'Tamils and Technology', category:'HS', credit:1 },
+    { code:'25ITC201', title:'Web Programming Concepts', category:'PC', credit:3 },
+    { code:'25CSC221', title:'Advanced JAVA Programming', category:'PC', credit:4 },
+    { code:'25CSC222', title:'Data Structures and Algorithms I', category:'PC', credit:4 },
+    { code:'25CSS211', title:'Engineering Exploration II', category:'SD', credit:1 },
+    { code:'25MES112', title:'Design Thinking Engineering Laboratory', category:'SD', credit:1 },
+    { code:'25CSC211', title:'Web Programming laboratory', category:'PC', credit:1 },
+    { code:'25ENS211', title:'Personality Development', category:'SD', credit:1 },
+    { code:'25HSH102', title:'Psychology', category:'HS', credit:0, audit:true },
+  ];
+  const MAX_CREDIT = Math.max(...SUBJECTS.map(s => s.credit));
+  const REGNO_PATTERN = /^71402\d{7}$/;
+
+  // ---- Render subject rows ------------------------------------------
+  const tbody = document.getElementById('subjectBody');
+  SUBJECTS.forEach((s, i) => {
+    const tr = document.createElement('tr');
+    if (s.audit) tr.className = 'audit-row';
+
+    const dots = Array.from({length: MAX_CREDIT}, (_, d) =>
+      `<span class="dot ${d < s.credit ? 'on' : ''}"></span>`).join('');
+
+    const options = (s.audit ? AUDIT_OPTIONS : GRADE_OPTIONS)
+      .map(g => `<option value="${g}">${g}</option>`).join('');
+
+    tr.innerHTML = `
+      <td>${i + 1}</td>
+      <td class="title-cell">
+        <div class="code">${s.code}</div>
+        <span class="name">${s.title}</span>
+        <span class="cat">${s.category}</span>
+        ${s.audit ? '<div class="audit-tag">Audit · not counted in CGPA</div>' : ''}
+      </td>
+      <td><div class="weight">${dots}<span class="num">${s.credit}</span></div></td>
+      <td><select class="grade" data-code="${s.code}"><option value="" selected disabled>—</option>${options}</select></td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  // ---- Register number validation -----------------------------------
+  const regInput = document.getElementById('regNo');
+  const regHint = document.getElementById('regHint');
+  regInput.addEventListener('input', () => {
+    regInput.value = regInput.value.replace(/\D/g, '').slice(0, 12);
+    const ok = REGNO_PATTERN.test(regInput.value);
+    regInput.classList.toggle('valid', ok);
+    regInput.classList.toggle('invalid', regInput.value.length > 0 && !ok);
+    regHint.classList.toggle('err', regInput.value.length > 0 && !ok);
+    regHint.textContent = (regInput.value.length > 0 && !ok)
+      ? 'Not a valid register number — needs 71402 + 7 digits'
+      : 'Format: 71402 followed by 7 digits (12 digits total)';
+  });
+
+  // ---- Calculate CGPA -------------------------------------------------
+  const calcBtn = document.getElementById('calcBtn');
+  const formMsg = document.getElementById('formMsg');
+  const resultBox = document.getElementById('result');
+  const serverNote = document.getElementById('serverNote');
+
+  calcBtn.addEventListener('click', async () => {
+    formMsg.textContent = '';
+    serverNote.textContent = '';
+
+    const registerNo = regInput.value.trim();
+    if (!REGNO_PATTERN.test(registerNo)) {
+      formMsg.textContent = 'Enter a valid register number before calculating.';
+      regInput.focus();
+      return;
+    }
+
+    const rows = [...document.querySelectorAll('select.grade')];
+    const missing = rows.some(r => !r.value);
+    if (missing) {
+      formMsg.textContent = 'Select a grade for every course.';
+      return;
+    }
+
+    // Build subject+grade payload, compute this semester's SGPA client-side
+    let creditSum = 0, weightedSum = 0;
+    const subjectsPayload = SUBJECTS.map(s => {
+      const grade = document.querySelector(`select[data-code="${s.code}"]`).value;
+      const gradePoint = s.audit ? null : GRADE_POINTS[grade];
+      if (!s.audit) {
+        creditSum += s.credit;
+        weightedSum += s.credit * gradePoint;
+      }
+      return { code: s.code, title: s.title, credit: s.credit, grade, gradePoint };
+    });
+    const sgpa = weightedSum / creditSum;
+
+    document.getElementById('sgpaValue').textContent = sgpa.toFixed(2);
+    document.getElementById('sgpaNote').textContent = `Weighted across ${creditSum} credits`;
+    document.getElementById('cgpaValue').textContent = sgpa.toFixed(2);
+    document.getElementById('cgpaNote').textContent = 'This semester only (fetching full record…)';
+    resultBox.style.display = 'block';
+
+    calcBtn.disabled = true;
+    calcBtn.textContent = 'Calculating…';
+
+    try {
+      // Save this semester's grades
+      await fetch('/api/grades/semester2', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ registerNo, subjects: subjectsPayload, sgpa, totalCredits: creditSum })
+      }).then(r => { if (!r.ok) throw new Error('save failed'); });
+
+      // Fetch true cumulative CGPA across every stored semester
+      const cgpaRes = await fetch(`/api/grades/cgpa/${registerNo}`);
+      if (!cgpaRes.ok) throw new Error('cgpa fetch failed');
+      const cgpaData = await cgpaRes.json();
+
+      document.getElementById('cgpaValue').textContent = cgpaData.cgpa.toFixed(2);
+      document.getElementById('cgpaNote').textContent =
+        `Across ${cgpaData.semestersRecorded} semester${cgpaData.semestersRecorded === 1 ? '' : 's'} on record`;
+    } catch (err) {
+      serverNote.textContent = 'Could not reach the server — showing this semester\'s SGPA only, not yet saved.';
+    } finally {
+      calcBtn.disabled = false;
+      calcBtn.textContent = 'Calculate CGPA';
+    }
+  });
+</script>
+</body>
+</html>
