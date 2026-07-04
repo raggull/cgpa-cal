@@ -6,6 +6,8 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 
 const cgpaRoutes = require('./routes/cgpaRoutes');
+const authRoutes = require('./routes/authRoutes');
+const requireAuth = require('./middleware/authMiddleware');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -13,13 +15,19 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-// Serve the grade-entry page
+// Login / create account page
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+// Grade-entry page (client-side JS redirects here to '/' if not signed in)
+app.get('/cgpa.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'cgpa.html'));
+});
+
 // API routes
-app.use('/api/grades', cgpaRoutes);
+app.use('/api/auth', authRoutes);          // public: register, login, google, config
+app.use('/api/grades', requireAuth, cgpaRoutes); // protected: needs a signed-in account
 
 // Connect to MongoDB, then start the server only once the connection is up
 mongoose.connect(process.env.MONGODB_URI)

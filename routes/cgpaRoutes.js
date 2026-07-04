@@ -7,6 +7,8 @@ const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
 
+const User = require('../models/User');
+
 const REGNO_PATTERN = /^71402\d{7}$/;
 const VALID_SEMESTERS = [1, 2];
 
@@ -65,6 +67,17 @@ router.post('/:semester', async (req, res) => {
       { registerNo, semester, subjects, sgpa, totalCredits, updatedAt: new Date() },
       { upsert: true, new: true, setDefaultsOnInsert: true }
     );
+
+    // Remember this register number on the signed-in account so future
+    // sign-ins can load this student's saved semester data automatically.
+    if (req.user && req.user.id) {
+      try {
+        await User.findByIdAndUpdate(req.user.id, { registerNo });
+      } catch (linkErr) {
+        console.error('Could not save register number to account:', linkErr);
+        // Non-fatal — the grade record itself saved fine.
+      }
+    }
 
     res.json({ success: true, record });
   } catch (err) {
