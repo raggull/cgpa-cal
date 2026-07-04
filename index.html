@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Semester II — Grade Entry</title>
+<title>CGPA Calculator — Grade Entry</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -17,6 +17,7 @@
     --green-deep:#155c39;
     --green-tint:#e6f2ea;
     --amber:#b5791f;
+    --amber-tint:#fbf3e6;
     --red:#c1443c;
     --red-tint:#fbeceb;
     --radius:10px;
@@ -72,6 +73,24 @@
     margin:0 0 16px;
   }
 
+  /* semester toggle */
+  .sem-toggle{display:flex;gap:10px;flex-wrap:wrap;}
+  .sem-btn{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:14px;
+    padding:10px 22px;
+    border-radius:8px;
+    border:1.5px solid var(--line);
+    background:#fff;
+    color:var(--ink-soft);
+    cursor:pointer;
+    transition:background .15s ease, border-color .15s ease, color .15s ease;
+  }
+  .sem-btn:hover:not(.active){border-color:var(--green);color:var(--green-deep);}
+  .sem-btn.active{background:var(--green);border-color:var(--green);color:#fff;}
+  #contextNote{margin-top:12px;font-size:13px;color:var(--ink-soft);font-family:var(--font-mono);}
+
   /* register number */
   .reg-row{display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap;}
   .reg-field{flex:1;min-width:240px;}
@@ -114,6 +133,7 @@
   }
   tbody tr:last-child td{border-bottom:none;}
   tbody tr.audit-row{background:#fafbf9;}
+  tbody tr.arrear-row{background:var(--amber-tint);}
   .code{font-family:var(--font-mono);font-size:12.5px;color:var(--ink-soft);}
   .title-cell .name{font-weight:500;}
   .title-cell .cat{
@@ -125,6 +145,7 @@
     border-radius:100px;
     margin-left:8px;
   }
+  .title-cell .cat.arrear-cat{color:var(--amber);background:#f6e7cf;}
 
   /* credit weight dots — encode how much each course counts */
   .weight{display:flex;gap:3px;align-items:center;}
@@ -147,7 +168,8 @@
   }
   select.grade:focus{outline:none;border-color:var(--green);}
 
-  .audit-tag{font-family:var(--font-mono);font-size:10.5px;color:var(--amber);}
+  .audit-tag{font-family:var(--font-mono);font-size:10.5px;color:var(--amber);margin-top:4px;}
+  .arrear-tag{font-family:var(--font-mono);font-size:10.5px;color:var(--amber);margin-top:4px;}
 
   /* action + result */
   .action-row{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;}
@@ -185,6 +207,20 @@
   .stat .value{font-family:var(--font-display);font-size:30px;font-weight:700;color:var(--ink);margin-top:4px;}
   .stat .note{font-size:12px;color:var(--ink-soft);margin-top:6px;}
   #serverNote{font-size:12.5px;color:var(--amber);margin-top:12px;}
+
+  /* arrear history */
+  #arrearCard{display:none;}
+  .status-pill{
+    font-family:var(--font-mono);
+    font-size:11px;
+    padding:2px 9px;
+    border-radius:100px;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+  }
+  .status-pill.cleared{background:var(--green-tint);color:var(--green-deep);}
+  .status-pill.pending{background:var(--red-tint);color:var(--red);}
+  #noArrearsNote{display:none;font-size:13px;color:var(--ink-soft);}
 </style>
 </head>
 <body>
@@ -192,9 +228,18 @@
 
   <header class="page">
     <span class="eyebrow">CGPA CALCULATOR - CSE</span>
-    <h1>Semester II Grade Entry</h1>
+    <h1 id="pageTitle">Semester 1 Grade Entry</h1>
     <p class="sub">Created By RAGUL A - CSE</p>
   </header>
+
+  <div class="card">
+    <h2>Semester</h2>
+    <div class="sem-toggle">
+      <button type="button" class="sem-btn active" data-sem="1">Semester 1</button>
+      <button type="button" class="sem-btn" data-sem="2">Semester 2</button>
+    </div>
+    <div id="contextNote"></div>
+  </div>
 
   <div class="card">
     <h2>Student</h2>
@@ -202,7 +247,7 @@
       <div class="reg-field">
         <label for="regNo">Register number</label>
         <input type="text" id="regNo" placeholder="714025104XXX" maxlength="12" autocomplete="off">
-        <div class="hint" id="regHint">Format: 714025104 followed by 3 digits (12 digits total)</div>
+        <div class="hint" id="regHint">Format: 71402 followed by 7 digits (12 digits total)</div>
       </div>
     </div>
   </div>
@@ -225,15 +270,15 @@
   <div class="card">
     <div class="action-row">
       <div id="formMsg"></div>
-      <button id="calcBtn">Calculate CGPA</button>
+      <button id="calcBtn">Calculate</button>
     </div>
 
     <div id="result">
       <div class="result-grid">
         <div class="stat">
-          <div class="label">Semester II SGPA</div>
+          <div class="label" id="sgpaLabel">Semester 1 SGPA</div>
           <div class="value" id="sgpaValue">—</div>
-          <div class="note" id="sgpaNote">Weighted across 22 credits</div>
+          <div class="note" id="sgpaNote">—</div>
         </div>
         <div class="stat">
           <div class="label">Overall CGPA</div>
@@ -245,6 +290,23 @@
     </div>
   </div>
 
+  <div class="card" id="arrearCard">
+    <h2>Arrear History</h2>
+    <table id="arrearTable">
+      <thead>
+        <tr>
+          <th>Course</th>
+          <th style="width:110px;">Failed in</th>
+          <th style="width:90px;">Status</th>
+          <th style="width:110px;">Cleared in</th>
+          <th style="width:70px;">Grade</th>
+        </tr>
+      </thead>
+      <tbody id="arrearBody"></tbody>
+    </table>
+    <div id="noArrearsNote">No arrears on record — clean sheet.</div>
+  </div>
+
 </div>
 
 <script>
@@ -254,53 +316,179 @@
   const GRADE_POINTS = { 'S':10, 'A+':9, 'A':8, 'B+':7, 'B':6.5, 'C+':6, 'C':5, 'U':0 };
   const GRADE_OPTIONS = Object.keys(GRADE_POINTS);
   const AUDIT_OPTIONS = ['S','U']; // Satisfactory / Unsatisfactory — not credit-weighted
-
-  // ---- Semester II course list (same order as the curriculum) ------
-  const SUBJECTS = [
-    { code:'25ENH201', title:'English for Career Growth', category:'HS', credit:3 },
-    { code:'25MAB201', title:'Discrete Mathematics And Graph Theory', category:'BS', credit:3 },
-    { code:'25TAH201', title:'Tamils and Technology', category:'HS', credit:1 },
-    { code:'25ITC201', title:'Web Programming Concepts', category:'PC', credit:3 },
-    { code:'25CSC221', title:'Advanced JAVA Programming', category:'PC', credit:4 },
-    { code:'25CSC222', title:'Data Structures and Algorithms I', category:'PC', credit:4 },
-    { code:'25CSS211', title:'Engineering Exploration II', category:'SD', credit:1 },
-    { code:'25MES112', title:'Design Thinking Engineering Laboratory', category:'SD', credit:1 },
-    { code:'25CSC211', title:'Web Programming laboratory', category:'PC', credit:1 },
-    { code:'25ENS211', title:'Personality Development', category:'SD', credit:1 },
-    { code:'25HSH102', title:'Psychology', category:'HS', credit:0, audit:true },
-  ];
-  const MAX_CREDIT = Math.max(...SUBJECTS.map(s => s.credit));
   const REGNO_PATTERN = /^71402\d{7}$/;
 
-  // ---- Render subject rows ------------------------------------------
+  // ---- Curriculum, by semester (same order as the syllabus) --------
+  const SUBJECTS_BY_SEM = {
+    1: [
+      { code:'25ENH101', title:'Professional English', category:'HS', credit:3 },
+      { code:'25MAB101', title:'Engineering Mathematics', category:'BS', credit:4 },
+      { code:'25ECE101', title:'Digital Principles and Computer Organization', category:'ES', credit:3 },
+      { code:'25TAH101', title:'Heritage of Tamils', category:'HS', credit:1 },
+      { code:'25CSE101', title:'Computational Thinking and Problem Solving', category:'ES', credit:3 },
+      { code:'25ITC121', title:'Front End Technologies', category:'PC', credit:4 },
+      { code:'25CSS111', title:'Engineering Exploration I', category:'SD', credit:1 },
+      { code:'25AGB111', title:'Crop Production Laboratory', category:'BS', credit:1 },
+      { code:'25MEB111', title:'Automobile Engine assembly Laboratory', category:'BS', credit:1 },
+      { code:'25CSE111', title:'Computational Thinking and Problem Solving laboratory', category:'ES', credit:1 },
+      { code:'25ENS111', title:'Soft Skills', category:'SD', credit:1 },
+      { code:'25HSH101', title:'Engineering Economics', category:'HS', credit:0, audit:true },
+    ],
+    2: [
+      { code:'25ENH201', title:'English for Career Growth', category:'HS', credit:3 },
+      { code:'25MAB201', title:'Discrete Mathematics And Graph Theory', category:'BS', credit:3 },
+      { code:'25TAH201', title:'Tamils and Technology', category:'HS', credit:1 },
+      { code:'25ITC201', title:'Web Programming Concepts', category:'PC', credit:3 },
+      { code:'25CSC221', title:'Advanced JAVA Programming', category:'PC', credit:4 },
+      { code:'25CSC222', title:'Data Structures and Algorithms I', category:'PC', credit:4 },
+      { code:'25CSS211', title:'Engineering Exploration II', category:'SD', credit:1 },
+      { code:'25MES112', title:'Design Thinking Engineering Laboratory', category:'SD', credit:1 },
+      { code:'25CSC211', title:'Web Programming laboratory', category:'PC', credit:1 },
+      { code:'25ENS211', title:'Personality Development', category:'SD', credit:1 },
+      { code:'25HSH102', title:'Psychology', category:'HS', credit:0, audit:true },
+    ],
+  };
+
+  // ---- State ---------------------------------------------------------
+  let currentSemester = 1;
+  let arrearRows = []; // subjects carried into Semester 2 because they were 'U' in Semester 1
+
+  // ---- DOM refs --------------------------------------------------------
   const tbody = document.getElementById('subjectBody');
-  SUBJECTS.forEach((s, i) => {
-    const tr = document.createElement('tr');
-    if (s.audit) tr.className = 'audit-row';
+  const regInput = document.getElementById('regNo');
+  const regHint = document.getElementById('regHint');
+  const contextNote = document.getElementById('contextNote');
+  const calcBtn = document.getElementById('calcBtn');
+  const formMsg = document.getElementById('formMsg');
+  const resultBox = document.getElementById('result');
+  const serverNote = document.getElementById('serverNote');
+  const pageTitle = document.getElementById('pageTitle');
+  const sgpaLabel = document.getElementById('sgpaLabel');
+  const arrearCard = document.getElementById('arrearCard');
+  const arrearTable = document.getElementById('arrearTable');
+  const arrearBody = document.getElementById('arrearBody');
+  const noArrearsNote = document.getElementById('noArrearsNote');
 
-    const dots = Array.from({length: MAX_CREDIT}, (_, d) =>
-      `<span class="dot ${d < s.credit ? 'on' : ''}"></span>`).join('');
+  // ---- Render subject rows for the active semester + any arrears ------
+  function renderSubjects() {
+    tbody.innerHTML = '';
+    const combined = [...SUBJECTS_BY_SEM[currentSemester], ...arrearRows];
+    const maxCredit = Math.max(...combined.map(s => s.credit), 1);
 
-    const options = (s.audit ? AUDIT_OPTIONS : GRADE_OPTIONS)
-      .map(g => `<option value="${g}">${g}</option>`).join('');
+    combined.forEach((s, i) => {
+      const tr = document.createElement('tr');
+      if (s.audit) tr.className = 'audit-row';
+      if (s.arrear) tr.className = 'arrear-row';
 
-    tr.innerHTML = `
-      <td>${i + 1}</td>
-      <td class="title-cell">
-        <div class="code">${s.code}</div>
-        <span class="name">${s.title}</span>
-        <span class="cat">${s.category}</span>
-        ${s.audit ? '<div class="audit-tag">Audit · not counted in CGPA</div>' : ''}
-      </td>
-      <td><div class="weight">${dots}<span class="num">${s.credit}</span></div></td>
-      <td><select class="grade" data-code="${s.code}"><option value="" selected disabled>—</option>${options}</select></td>
-    `;
-    tbody.appendChild(tr);
+      const dots = Array.from({length: maxCredit}, (_, d) =>
+        `<span class="dot ${d < s.credit ? 'on' : ''}"></span>`).join('');
+
+      const options = (s.audit ? AUDIT_OPTIONS : GRADE_OPTIONS)
+        .map(g => `<option value="${g}">${g}</option>`).join('');
+
+      const catTag = s.arrear
+        ? `<span class="cat arrear-cat">ARREAR · SEM ${s.originalSemester}</span>`
+        : `<span class="cat">${s.category}</span>`;
+
+      tr.innerHTML = `
+        <td>${i + 1}</td>
+        <td class="title-cell">
+          <div class="code">${s.code}</div>
+          <span class="name">${s.title}</span>
+          ${catTag}
+          ${s.audit ? '<div class="audit-tag">Audit · not counted in CGPA</div>' : ''}
+          ${s.arrear ? `<div class="arrear-tag">Failed in Semester ${s.originalSemester} — enter the grade you cleared it with</div>` : ''}
+        </td>
+        <td><div class="weight">${dots}<span class="num">${s.credit}</span></div></td>
+        <td><select class="grade" data-code="${s.code}"><option value="" selected disabled>—</option>${options}</select></td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  // ---- Prefill grades from a previously-saved record for this semester -
+  function prefillGrades(record) {
+    if (!record || !Array.isArray(record.subjects)) return;
+    record.subjects.forEach(s => {
+      const sel = document.querySelector(`select[data-code="${s.code}"]`);
+      if (sel && s.grade) sel.value = s.grade;
+    });
+  }
+
+  // ---- Look up Semester 1 arrears + any saved record for this semester -
+  async function loadContextForCurrentState() {
+    const regNo = regInput.value.trim();
+    arrearRows = [];
+    let savedRecord = null;
+    let sem1Record = null;
+
+    if (currentSemester === 2) {
+      contextNote.textContent = 'Checking Semester 1 record…';
+      try {
+        const res = await fetch(`/api/grades/record/${regNo}/1`);
+        if (res.ok) {
+          const data = await res.json();
+          sem1Record = data.record;
+        }
+      } catch (e) { /* offline — proceed without arrear detection */ }
+
+      if (sem1Record) {
+        arrearRows = sem1Record.subjects
+          .filter(s => s.grade === 'U' && s.credit > 0)
+          .map(s => ({ code: s.code, title: s.title, credit: s.credit, arrear: true, originalSemester: 1 }));
+      }
+    }
+
+    try {
+      const res2 = await fetch(`/api/grades/record/${regNo}/${currentSemester}`);
+      if (res2.ok) {
+        const data2 = await res2.json();
+        savedRecord = data2.record;
+      }
+    } catch (e) { /* ignore — nothing saved yet, or offline */ }
+
+    renderSubjects();
+    if (savedRecord) prefillGrades(savedRecord);
+
+    if (currentSemester === 2) {
+      if (!sem1Record) {
+        contextNote.textContent = 'No Semester 1 record found for this register number — enter Semester 1 first so arrears carry over automatically.';
+      } else if (arrearRows.length > 0) {
+        contextNote.textContent = `${arrearRows.length} arrear${arrearRows.length > 1 ? 's' : ''} carried over from Semester 1 — shown in amber below.`;
+      } else {
+        contextNote.textContent = 'No arrears from Semester 1.';
+      }
+    } else {
+      contextNote.textContent = '';
+    }
+  }
+
+  // ---- Semester toggle -------------------------------------------------
+  document.querySelectorAll('.sem-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.sem-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentSemester = Number(btn.dataset.sem);
+
+      pageTitle.textContent = `Semester ${currentSemester} Grade Entry`;
+      document.title = `Semester ${currentSemester} — Grade Entry`;
+      sgpaLabel.textContent = `Semester ${currentSemester} SGPA`;
+
+      resultBox.style.display = 'none';
+      arrearCard.style.display = 'none';
+      formMsg.textContent = '';
+      serverNote.textContent = '';
+
+      if (REGNO_PATTERN.test(regInput.value)) {
+        loadContextForCurrentState();
+      } else {
+        arrearRows = [];
+        renderSubjects();
+      }
+    });
   });
 
   // ---- Register number validation -----------------------------------
-  const regInput = document.getElementById('regNo');
-  const regHint = document.getElementById('regHint');
   regInput.addEventListener('input', () => {
     regInput.value = regInput.value.replace(/\D/g, '').slice(0, 12);
     const ok = REGNO_PATTERN.test(regInput.value);
@@ -310,14 +498,46 @@
     regHint.textContent = (regInput.value.length > 0 && !ok)
       ? 'Not a valid register number — needs 71402 + 7 digits'
       : 'Format: 71402 followed by 7 digits (12 digits total)';
+
+    resultBox.style.display = 'none';
+    arrearCard.style.display = 'none';
+
+    if (ok) {
+      loadContextForCurrentState();
+    } else {
+      arrearRows = [];
+      renderSubjects();
+    }
   });
 
-  // ---- Calculate CGPA -------------------------------------------------
-  const calcBtn = document.getElementById('calcBtn');
-  const formMsg = document.getElementById('formMsg');
-  const resultBox = document.getElementById('result');
-  const serverNote = document.getElementById('serverNote');
+  // ---- Render arrear history table --------------------------------------
+  function renderArrearHistory(arrears) {
+    arrearBody.innerHTML = '';
+    arrearCard.style.display = 'block';
 
+    if (!arrears || arrears.length === 0) {
+      arrearTable.style.display = 'none';
+      noArrearsNote.style.display = 'block';
+      return;
+    }
+
+    arrearTable.style.display = 'table';
+    noArrearsNote.style.display = 'none';
+
+    arrears.forEach(a => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><div class="code">${a.code}</div><span class="name">${a.title}</span></td>
+        <td>Semester ${a.failedInSemester}</td>
+        <td><span class="status-pill ${a.status}">${a.status === 'cleared' ? 'Cleared' : 'Pending'}</span></td>
+        <td>${a.clearedInSemester ? 'Semester ' + a.clearedInSemester : '—'}</td>
+        <td>${a.clearedGrade || '—'}</td>
+      `;
+      arrearBody.appendChild(tr);
+    });
+  }
+
+  // ---- Calculate SGPA + CGPA -------------------------------------------
   calcBtn.addEventListener('click', async () => {
     formMsg.textContent = '';
     serverNote.textContent = '';
@@ -336,31 +556,43 @@
       return;
     }
 
-    // Build subject+grade payload, compute this semester's SGPA client-side
+    // Build subject+grade payload. Regular (non-audit, non-arrear) rows
+    // determine THIS semester's own SGPA — arrear-clearance rows are
+    // resits, not part of this semester's registered credit load, so
+    // they're saved (for CGPA/arrear tracking) but excluded from SGPA.
+    const combined = [...SUBJECTS_BY_SEM[currentSemester], ...arrearRows];
     let creditSum = 0, weightedSum = 0;
-    const subjectsPayload = SUBJECTS.map(s => {
+    const subjectsPayload = combined.map(s => {
       const grade = document.querySelector(`select[data-code="${s.code}"]`).value;
       const gradePoint = s.audit ? null : GRADE_POINTS[grade];
-      if (!s.audit) {
+      if (!s.audit && !s.arrear) {
         creditSum += s.credit;
         weightedSum += s.credit * gradePoint;
       }
-      return { code: s.code, title: s.title, credit: s.credit, grade, gradePoint };
+      return {
+        code: s.code,
+        title: s.title,
+        credit: s.credit,
+        grade,
+        gradePoint,
+        isArrearClearance: !!s.arrear,
+        originalSemester: s.arrear ? s.originalSemester : null
+      };
     });
     const sgpa = weightedSum / creditSum;
 
     document.getElementById('sgpaValue').textContent = sgpa.toFixed(2);
     document.getElementById('sgpaNote').textContent = `Weighted across ${creditSum} credits`;
     document.getElementById('cgpaValue').textContent = sgpa.toFixed(2);
-    document.getElementById('cgpaNote').textContent = 'This semester only (fetching full record…)';
+    document.getElementById('cgpaNote').textContent = 'Fetching full record…';
     resultBox.style.display = 'block';
 
     calcBtn.disabled = true;
     calcBtn.textContent = 'Calculating…';
 
     try {
-      // Save this semester's grades
-      await fetch('/api/grades/semester2', {
+      // Save this semester's grades (including any arrear clearances)
+      await fetch(`/api/grades/${currentSemester}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ registerNo, subjects: subjectsPayload, sgpa, totalCredits: creditSum })
@@ -371,16 +603,26 @@
       if (!cgpaRes.ok) throw new Error('cgpa fetch failed');
       const cgpaData = await cgpaRes.json();
 
-      document.getElementById('cgpaValue').textContent = cgpaData.cgpa.toFixed(2);
+      document.getElementById('cgpaValue').textContent = cgpaData.cgpa != null ? cgpaData.cgpa.toFixed(2) : '—';
       document.getElementById('cgpaNote').textContent =
         `Across ${cgpaData.semestersRecorded} semester${cgpaData.semestersRecorded === 1 ? '' : 's'} on record`;
+
+      // Fetch arrear history
+      const arrearRes = await fetch(`/api/grades/arrears/${registerNo}`);
+      if (arrearRes.ok) {
+        const arrearData = await arrearRes.json();
+        renderArrearHistory(arrearData.arrears);
+      }
     } catch (err) {
       serverNote.textContent = 'Could not reach the server — showing this semester\'s SGPA only, not yet saved.';
     } finally {
       calcBtn.disabled = false;
-      calcBtn.textContent = 'Calculate CGPA';
+      calcBtn.textContent = 'Calculate';
     }
   });
+
+  // ---- Initial render ----------------------------------------------------
+  renderSubjects();
 </script>
 </body>
 </html>
