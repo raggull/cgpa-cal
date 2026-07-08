@@ -1,390 +1,738 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CGPA Calculator — Grade Entry</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --ink:#152420;
-    --ink-soft:#5b6d64;
-    --canvas:#f3f6f2;
-    --card:#ffffff;
-    --line:#dde5dc;
-    --green:#1f7a4d;
-    --green-deep:#155c39;
-    --green-tint:#e6f2ea;
-    --amber:#b5791f;
-    --amber-tint:#fbf3e6;
-    --red:#c1443c;
-    --red-tint:#fbeceb;
-    --radius:10px;
-    --font-display:'Sora',sans-serif;
-    --font-body:'Inter',sans-serif;
-    --font-mono:'JetBrains Mono',monospace;
-  }
-  *{box-sizing:border-box;}
-  body{
-    margin:0;
-    background:var(--canvas);
-    color:var(--ink);
-    font-family:var(--font-body);
-    padding:40px 20px 80px;
-  }
-  .wrap{max-width:880px;margin:0 auto;}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CGPA Calculator — Grade Entry</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --ink: #152420;
+      --ink-soft: #5b6d64;
+      --canvas: #f3f6f2;
+      --card: #ffffff;
+      --line: #dde5dc;
+      --green: #1f7a4d;
+      --green-deep: #155c39;
+      --green-tint: #e6f2ea;
+      --amber: #b5791f;
+      --amber-tint: #fbf3e6;
+      --red: #c1443c;
+      --red-tint: #fbeceb;
+      --radius: 10px;
+      --font-display: 'Sora', sans-serif;
+      --font-body: 'Inter', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
 
-  .account-bar{
-    display:flex;
-    justify-content:flex-end;
-    align-items:center;
-    gap:14px;
-    margin-bottom:20px;
-  }
-  .account-info{
-    font-size:13px;
-    color:var(--ink-soft);
-  }
-  .account-info strong{color:var(--ink);font-weight:600;}
-  button#logoutBtn{
-    font-family:var(--font-body);
-    font-weight:600;
-    font-size:13px;
-    background:#fff;
-    color:var(--ink-soft);
-    border:1.5px solid var(--line);
-    padding:7px 14px;
-    border-radius:8px;
-    cursor:pointer;
-    transition:border-color .15s ease, color .15s ease;
-  }
-  button#logoutBtn:hover{border-color:var(--red);color:var(--red);}
+    * {
+      box-sizing: border-box;
+    }
 
-  header.page{margin-bottom:32px;}
-  .eyebrow{
-    font-family:var(--font-mono);
-    font-size:12px;
-    letter-spacing:.08em;
-    text-transform:uppercase;
-    color:var(--green-deep);
-    background:var(--green-tint);
-    display:inline-block;
-    padding:4px 10px;
-    border-radius:100px;
-    margin-bottom:14px;
-  }
-  h1{
-    font-family:var(--font-display);
-    font-weight:700;
-    font-size:32px;
-    margin:0 0 8px;
-    letter-spacing:-0.01em;
-  }
-  .sub{color:var(--ink-soft);font-size:15px;max-width:56ch;line-height:1.5;}
+    body {
+      margin: 0;
+      background: var(--canvas);
+      color: var(--ink);
+      font-family: var(--font-body);
+      padding: 40px 20px 80px;
+    }
 
-  .card{
-    background:var(--card);
-    border:1px solid var(--line);
-    border-radius:var(--radius);
-    padding:24px;
-    margin-bottom:20px;
-  }
-  .card h2{
-    font-family:var(--font-display);
-    font-size:15px;
-    text-transform:uppercase;
-    letter-spacing:.06em;
-    color:var(--ink-soft);
-    margin:0 0 16px;
-  }
+    .wrap {
+      max-width: 880px;
+      margin: 0 auto;
+    }
 
-  /* semester toggle */
-  .sem-toggle{display:flex;gap:10px;flex-wrap:wrap;}
-  .sem-btn{
-    font-family:var(--font-display);
-    font-weight:600;
-    font-size:14px;
-    padding:10px 22px;
-    border-radius:8px;
-    border:1.5px solid var(--line);
-    background:#fff;
-    color:var(--ink-soft);
-    cursor:pointer;
-    transition:background .15s ease, border-color .15s ease, color .15s ease;
-  }
-  .sem-btn:hover:not(.active){border-color:var(--green);color:var(--green-deep);}
-  .sem-btn.active{background:var(--green);border-color:var(--green);color:#fff;}
-  #contextNote{margin-top:12px;font-size:13px;color:var(--ink-soft);font-family:var(--font-mono);}
+    .account-bar {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 20px;
+    }
 
-  /* register number */
-  .reg-row{display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap;}
-  .reg-field{flex:1;min-width:240px;}
-  label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--ink);}
-  input#studentName{
-    width:100%;
-    font-family:var(--font-body);
-    font-size:15px;
-    padding:12px 14px;
-    border:1.5px solid var(--line);
-    border-radius:8px;
-    background:#fbfcfb;
-    color:var(--ink);
-    transition:border-color .15s ease, background .15s ease;
-  }
-  input#studentName:focus{outline:none;border-color:var(--green);}
-  input#regNo{
-    width:100%;
-    font-family:var(--font-mono);
-    font-size:17px;
-    letter-spacing:.03em;
-    padding:12px 14px;
-    border:1.5px solid var(--line);
-    border-radius:8px;
-    background:#fbfcfb;
-    color:var(--ink);
-    transition:border-color .15s ease, background .15s ease;
-  }
-  input#regNo:focus{outline:none;border-color:var(--green);}
-  input#regNo.valid{border-color:var(--green);background:var(--green-tint);}
-  input#regNo.invalid{border-color:var(--red);background:var(--red-tint);}
-  .hint{font-size:12px;color:var(--ink-soft);margin-top:6px;font-family:var(--font-mono);}
-  .hint.err{color:var(--red);}
+    .account-info {
+      font-size: 13px;
+      color: var(--ink-soft);
+    }
 
-  /* subject table */
-  table{width:100%;border-collapse:collapse;}
-  thead th{
-    text-align:left;
-    font-size:11px;
-    text-transform:uppercase;
-    letter-spacing:.06em;
-    color:var(--ink-soft);
-    font-weight:600;
-    padding:0 10px 10px;
-    border-bottom:1px solid var(--line);
-  }
-  tbody td{
-    padding:12px 10px;
-    border-bottom:1px solid var(--line);
-    font-size:14px;
-    vertical-align:middle;
-  }
-  tbody tr:last-child td{border-bottom:none;}
-  tbody tr.audit-row{background:#fafbf9;}
-  tbody tr.arrear-row{background:var(--amber-tint);}
-  .code{font-family:var(--font-mono);font-size:12.5px;color:var(--ink-soft);}
-  .title-cell .name{font-weight:500;}
-  .title-cell .cat{
-    font-family:var(--font-mono);
-    font-size:10.5px;
-    color:var(--green-deep);
-    background:var(--green-tint);
-    padding:1px 6px;
-    border-radius:100px;
-    margin-left:8px;
-  }
-  .title-cell .cat.arrear-cat{color:var(--amber);background:#f6e7cf;}
+    .account-info strong {
+      color: var(--ink);
+      font-weight: 600;
+    }
 
-  /* credit weight dots — encode how much each course counts */
-  .weight{display:flex;gap:3px;align-items:center;}
-  .weight .dot{
-    width:7px;height:7px;border-radius:50%;
-    background:var(--line);
-  }
-  .weight .dot.on{background:var(--green);}
-  .weight .num{font-family:var(--font-mono);font-size:12px;color:var(--ink-soft);margin-left:6px;}
+    button#logoutBtn {
+      font-family: var(--font-body);
+      font-weight: 600;
+      font-size: 13px;
+      background: #fff;
+      color: var(--ink-soft);
+      border: 1.5px solid var(--line);
+      padding: 7px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: border-color .15s ease, color .15s ease;
+    }
 
-  select.grade{
-    font-family:var(--font-mono);
-    font-size:14px;
-    padding:7px 10px;
-    border:1.5px solid var(--line);
-    border-radius:6px;
-    background:#fff;
-    color:var(--ink);
-    min-width:88px;
-  }
-  select.grade:focus{outline:none;border-color:var(--green);}
+    button#logoutBtn:hover {
+      border-color: var(--red);
+      color: var(--red);
+    }
 
-  .audit-tag{font-family:var(--font-mono);font-size:10.5px;color:var(--amber);margin-top:4px;}
-  .arrear-tag{font-family:var(--font-mono);font-size:10.5px;color:var(--amber);margin-top:4px;}
+    header.page {
+      margin-bottom: 32px;
+    }
 
-  /* action + result */
-  .action-row{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;}
-  button#calcBtn{ font-family:var(--font-display); font-weight:600; font-size:15px; background:var(--green); color:#fff; border:none; 
-    padding:13px 26px; border-radius:8px; cursor:pointer; transition:background .15s ease, transform .1s ease; }
-  button#calcBtn:hover{background:var(--green-deep);}
-  button#calcBtn:active{transform:scale(0.98);}
-  button#calcBtn:disabled{background:#a9b8ae;cursor:not-allowed;}
-  #formMsg{font-size:13px;color:var(--red);}
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--green-deep);
+      background: var(--green-tint);
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 100px;
+      margin-bottom: 14px;
+    }
 
-  .btn{ font-family:var(--font-display); font-weight:600; font-size:15px; background:var(--green); color:#fff; border:none; 
-    padding:13px 26px; border-radius:8px; cursor:pointer; transition:background .15s ease, transform .1s ease; }
-  .btn:hover{background:var(--green-deep);}
-  .btn:active{transform:scale(0.98);}
-  .btn:disabled{background:#a9b8ae;cursor:not-allowed;}
+    h1 {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 32px;
+      margin: 0 0 8px;
+      letter-spacing: -0.01em;
+    }
 
-  .btn-pri { background: var(--green-deep); color: #fff; border: none; border-radius: 10px; padding: 9px 20px; font-size: 13px; 
-  font-weight: 600; cursor: pointer; font-family: var(--font-display); }
-  .btn-pri:hover { background: var(--green); }
-  .btn-pri:disabled { background:#a9b8ae; cursor:not-allowed; }
+    .sub {
+      color: var(--ink-soft);
+      font-size: 15px;
+      max-width: 56ch;
+      line-height: 1.5;
+    }
 
-  .btn-sec { background: #fff; color: var(--ink-soft); border: 1.5px solid var(--line); border-radius: 10px; padding: 8px 20px;
-  font-size: 13px; font-weight: 600; cursor: pointer; font-family: var(--font-display); }
-  .btn-sec:hover { border-color: var(--ink-soft); color: var(--ink); }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 20px;
+    }
 
-  #result{
-    display:none;
-    margin-top:20px;
-    padding-top:20px;
-    border-top:1px dashed var(--line);
-  }
-  .result-grid{display:flex;gap:16px;flex-wrap:wrap;}
-  .stat{
-    flex:1;min-width:180px;
-    background:var(--green-tint);
-    border-radius:8px;
-    padding:16px 18px;
-  }
-  .stat .label{font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--green-deep);}
-  .stat .value{font-family:var(--font-display);font-size:30px;font-weight:700;color:var(--ink);margin-top:4px;}
-  .stat .note{font-size:12px;color:var(--ink-soft);margin-top:6px;}
-  #serverNote{font-size:12.5px;color:var(--amber);margin-top:12px;}
+    .card h2 {
+      font-family: var(--font-display);
+      font-size: 15px;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--ink-soft);
+      margin: 0 0 16px;
+    }
 
-  /* arrear history */
-  #arrearCard{display:none;}
-  .status-pill{
-    font-family:var(--font-mono);
-    font-size:11px;
-    padding:2px 9px;
-    border-radius:100px;
-    text-transform:uppercase;
-    letter-spacing:.04em;
-  }
-  .status-pill.cleared{background:var(--green-tint);color:var(--green-deep);}
-  .status-pill.pending{background:var(--red-tint);color:var(--red);}
-  #noArrearsNote{display:none;font-size:13px;color:var(--ink-soft);}
+    /* semester toggle */
+    .sem-toggle {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
 
-  .modal-bg { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.38); backdrop-filter: blur(5px); z-index: 700; display: flex; align-items: center;
-   justify-content: center; opacity: 0; pointer-events: none; transition: all .25s; }
-   .modal-title { font-family: var(--font-display); font-size: 19px; font-weight: 700; color: var(--ink); }
-   .modal-hd { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px; }
-  .modal-bg.open { opacity: 1; pointer-events: all; }
-  .modal-close { width: 30px; height: 30px; border-radius: 8px; background: var(--green-tint); border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; 
-    cursor: pointer; font-size: 15px; color: var(--ink-soft); transition: all .2s; flex-shrink: 0; }
-  .modal-close:hover { background: var(--red-tint); color: var(--red); }
-  .modal-card{background:var(--card);border-radius:16px;padding:22px;}
-  #m-status{font-size:13px;margin:10px 0;}
-  #m-dc-table table{margin-bottom:4px;}
-  #m-dc-table thead th{font-size:11px;padding:0 8px 6px;}
-  #m-dc-table tbody td{padding:6px 8px;font-size:13px;}
-</style>
+    .sem-btn {
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 14px;
+      padding: 10px 22px;
+      border-radius: 8px;
+      border: 1.5px solid var(--line);
+      background: #fff;
+      color: var(--ink-soft);
+      cursor: pointer;
+      transition: background .15s ease, border-color .15s ease, color .15s ease;
+    }
+
+    .sem-btn:hover:not(.active) {
+      border-color: var(--green);
+      color: var(--green-deep);
+    }
+
+    .sem-btn.active {
+      background: var(--green);
+      border-color: var(--green);
+      color: #fff;
+    }
+
+    #contextNote {
+      margin-top: 12px;
+      font-size: 13px;
+      color: var(--ink-soft);
+      font-family: var(--font-mono);
+    }
+
+    /* register number */
+    .reg-row {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+
+    .reg-field {
+      flex: 1;
+      min-width: 240px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: var(--ink);
+    }
+
+    input#studentName {
+      width: 100%;
+      font-family: var(--font-body);
+      font-size: 15px;
+      padding: 12px 14px;
+      border: 1.5px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfb;
+      color: var(--ink);
+      transition: border-color .15s ease, background .15s ease;
+    }
+
+    input#studentName:focus {
+      outline: none;
+      border-color: var(--green);
+    }
+
+    input#regNo {
+      width: 100%;
+      font-family: var(--font-mono);
+      font-size: 17px;
+      letter-spacing: .03em;
+      padding: 12px 14px;
+      border: 1.5px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfb;
+      color: var(--ink);
+      transition: border-color .15s ease, background .15s ease;
+    }
+
+    input#regNo:focus {
+      outline: none;
+      border-color: var(--green);
+    }
+
+    input#regNo.valid {
+      border-color: var(--green);
+      background: var(--green-tint);
+    }
+
+    input#regNo.invalid {
+      border-color: var(--red);
+      background: var(--red-tint);
+    }
+
+    .hint {
+      font-size: 12px;
+      color: var(--ink-soft);
+      margin-top: 6px;
+      font-family: var(--font-mono);
+    }
+
+    .hint.err {
+      color: var(--red);
+    }
+
+    /* subject table */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead th {
+      text-align: left;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--ink-soft);
+      font-weight: 600;
+      padding: 0 10px 10px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    tbody td {
+      padding: 12px 10px;
+      border-bottom: 1px solid var(--line);
+      font-size: 14px;
+      vertical-align: middle;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    tbody tr.audit-row {
+      background: #fafbf9;
+    }
+
+    tbody tr.arrear-row {
+      background: var(--amber-tint);
+    }
+
+    .code {
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+      color: var(--ink-soft);
+    }
+
+    .title-cell .name {
+      font-weight: 500;
+    }
+
+    .title-cell .cat {
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      color: var(--green-deep);
+      background: var(--green-tint);
+      padding: 1px 6px;
+      border-radius: 100px;
+      margin-left: 8px;
+    }
+
+    .title-cell .cat.arrear-cat {
+      color: var(--amber);
+      background: #f6e7cf;
+    }
+
+    /* credit weight dots — encode how much each course counts */
+    .weight {
+      display: flex;
+      gap: 3px;
+      align-items: center;
+    }
+
+    .weight .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--line);
+    }
+
+    .weight .dot.on {
+      background: var(--green);
+    }
+
+    .weight .num {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--ink-soft);
+      margin-left: 6px;
+    }
+
+    select.grade {
+      font-family: var(--font-mono);
+      font-size: 14px;
+      padding: 7px 10px;
+      border: 1.5px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      color: var(--ink);
+      min-width: 88px;
+    }
+
+    select.grade:focus {
+      outline: none;
+      border-color: var(--green);
+    }
+
+    .audit-tag {
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      color: var(--amber);
+      margin-top: 4px;
+    }
+
+    .arrear-tag {
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      color: var(--amber);
+      margin-top: 4px;
+    }
+
+    /* action + result */
+    .action-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    button#calcBtn {
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 15px;
+      background: var(--green);
+      color: #fff;
+      border: none;
+      padding: 13px 26px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background .15s ease, transform .1s ease;
+    }
+
+    button#calcBtn:hover {
+      background: var(--green-deep);
+    }
+
+    button#calcBtn:active {
+      transform: scale(0.98);
+    }
+
+    button#calcBtn:disabled {
+      background: #a9b8ae;
+      cursor: not-allowed;
+    }
+
+    #formMsg {
+      font-size: 13px;
+      color: var(--red);
+    }
+
+    .btn {
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 15px;
+      background: var(--green);
+      color: #fff;
+      border: none;
+      padding: 13px 26px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background .15s ease, transform .1s ease;
+    }
+
+    .btn:hover {
+      background: var(--green-deep);
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn:disabled {
+      background: #a9b8ae;
+      cursor: not-allowed;
+    }
+
+    .btn-pri {
+      background: var(--green-deep);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 9px 20px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: var(--font-display);
+    }
+
+    .btn-pri:hover {
+      background: var(--green);
+    }
+
+    .btn-pri:disabled {
+      background: #a9b8ae;
+      cursor: not-allowed;
+    }
+
+    .btn-sec {
+      background: #fff;
+      color: var(--ink-soft);
+      border: 1.5px solid var(--line);
+      border-radius: 10px;
+      padding: 8px 20px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: var(--font-display);
+    }
+
+    .btn-sec:hover {
+      border-color: var(--ink-soft);
+      color: var(--ink);
+    }
+
+    #result {
+      display: none;
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px dashed var(--line);
+    }
+
+    .result-grid {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .stat {
+      flex: 1;
+      min-width: 180px;
+      background: var(--green-tint);
+      border-radius: 8px;
+      padding: 16px 18px;
+    }
+
+    .stat .label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      color: var(--green-deep);
+    }
+
+    .stat .value {
+      font-family: var(--font-display);
+      font-size: 30px;
+      font-weight: 700;
+      color: var(--ink);
+      margin-top: 4px;
+    }
+
+    .stat .note {
+      font-size: 12px;
+      color: var(--ink-soft);
+      margin-top: 6px;
+    }
+
+    #serverNote {
+      font-size: 12.5px;
+      color: var(--amber);
+      margin-top: 12px;
+    }
+
+    /* arrear history */
+    #arrearCard {
+      display: none;
+    }
+
+    .status-pill {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      padding: 2px 9px;
+      border-radius: 100px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+
+    .status-pill.cleared {
+      background: var(--green-tint);
+      color: var(--green-deep);
+    }
+
+    .status-pill.pending {
+      background: var(--red-tint);
+      color: var(--red);
+    }
+
+    #noArrearsNote {
+      display: none;
+      font-size: 13px;
+      color: var(--ink-soft);
+    }
+
+    .modal-bg {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.38);
+      backdrop-filter: blur(5px);
+      z-index: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: all .25s;
+    }
+
+    .modal-title {
+      font-family: var(--font-display);
+      font-size: 19px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .modal-hd {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .modal-bg.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .modal-close {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      background: var(--green-tint);
+      border: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 15px;
+      color: var(--ink-soft);
+      transition: all .2s;
+      flex-shrink: 0;
+    }
+
+    .modal-close:hover {
+      background: var(--red-tint);
+      color: var(--red);
+    }
+
+    .modal-card {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 22px;
+    }
+
+    #m-status {
+      font-size: 13px;
+      margin: 10px 0;
+    }
+
+    #m-dc-table table {
+      margin-bottom: 4px;
+    }
+
+    #m-dc-table thead th {
+      font-size: 11px;
+      padding: 0 8px 6px;
+    }
+
+    #m-dc-table tbody td {
+      padding: 6px 8px;
+      font-size: 13px;
+    }
+  </style>
 </head>
+
 <body>
-<div class="wrap">
+  <div class="wrap">
 
-  <div class="account-bar">
-    <span class="account-info">Signed in as <strong id="accountName">…</strong></span>
-    <button type="button" id="logoutBtn">Log out</button>
-  </div>
-
-  <header class="page">
-    <span class="eyebrow">CGPA CALCULATOR - CSE</span>
-    <h1 id="pageTitle">Semester 1 Grade Entry</h1>
-    <p class="sub">Created By RAGUL A - CSE</p>
-  </header>
-
-  <div class="card">
-    <h2>Semester</h2>
-    <div class="sem-toggle">
-      <button type="button" class="sem-btn active" data-sem="1">Semester 1</button>
-      <button type="button" class="sem-btn" data-sem="2">Semester 2</button>
+    <div class="account-bar">
+      <span class="account-info">Signed in as <strong id="accountName">…</strong></span>
+      <button type="button" id="logoutBtn">Log out</button>
     </div>
-    <div id="contextNote"></div>
-    <div class="hint" style="font-size:14px;">Your grades are saved and preserved for future semester CGPA Calculation, use correct register number.</div>
-  </div>
-  <div class="card">
-    <h2>Student</h2>
-    <div class="reg-row">
-      <div class="reg-field">
-        <label for="studentName">Student name</label>
-        <input type="text" id="studentName" placeholder="Full name" autocomplete="name">
+
+    <header class="page">
+      <span class="eyebrow">CGPA CALCULATOR - CSE</span>
+      <h1 id="pageTitle">Semester 1 Grade Entry</h1>
+      <p class="sub">Created By RAGUL A - CSE</p>
+    </header>
+
+    <div class="card">
+      <h2>Semester</h2>
+      <div class="sem-toggle">
+        <button type="button" class="sem-btn active" data-sem="1">Semester 1</button>
+        <button type="button" class="sem-btn" data-sem="2">Semester 2</button>
       </div>
-      <div class="reg-field">
-        <label for="regNo">Register number</label>
-        <input type="text" id="regNo" value="714025104" maxlength="12" autocomplete="off" required>
-        <div class="hint" id="regHint">Format: 714025104XXX (12 digits total)</div>
-      </div>
+      <div id="contextNote"></div>
+      <div class="hint" style="font-size:14px;">Your grades are saved and preserved for future semester CGPA
+        Calculation, use correct register number.</div>
     </div>
-  </div>
-
-  <div class="card">
-    <h2>Courses</h2>
-    <table>
-      <thead>
-        <tr>
-          <th style="width:24px;">#</th>
-          <th style="font-size: 13px;font-family: var(--font-mono);">Course</th>
-          <th style="width:110px;font-size: 13px;font-family: var(--font-mono);">Credit</th>
-          <th style="width:100px;font-size: 13px;font-family: var(--font-mono);">Grade</th>
-        </tr>
-      </thead>
-      <tbody id="subjectBody"></tbody>
-    </table>
-  </div>
-
-  <div class="card">
-    <div class="sem-toggle" style="justify-content: right;">
-      <div id="formMsg"></div>
-      <!-- <button class="btn" id="addSheetOpenBtn" type="button">Add to Sheet</button> -->
-      <button id="calcBtn">Calculate</button>
-    </div>
-
-    <div id="result">
-      <div class="result-grid">
-        <div class="stat">
-          <div class="label" id="sgpaLabel">Semester 1 SGPA</div>
-          <div class="value" id="sgpaValue">—</div>
-          <div class="note" id="sgpaNote">—</div>
+    <div class="card">
+      <h2>Student</h2>
+      <div class="reg-row">
+        <div class="reg-field">
+          <label for="studentName">Student name</label>
+          <input type="text" id="studentName" placeholder="Full name" autocomplete="name">
         </div>
-        <div class="stat">
-          <div class="label">Overall CGPA</div>
-          <div class="value" id="cgpaValue">—</div>
-          <div class="note" id="cgpaNote">Across all semesters on record</div>
+        <div class="reg-field">
+          <label for="regNo">Register number</label>
+          <input type="text" id="regNo" value="714025104" maxlength="12" autocomplete="off" required>
+          <div class="hint" id="regHint">Format: 714025104XXX (12 digits total)</div>
         </div>
       </div>
-      <div id="serverNote"></div>
     </div>
-  </div>
 
-  <div class="card" id="arrearCard">
-    <h2>Arrear History</h2>
-    <table id="arrearTable">
-      <thead>
-        <tr>
-          <th>Course</th>
-          <th style="width:110px;">Failed in</th>
-          <th style="width:90px;">Status</th>
-          <th style="width:110px;">Cleared in</th>
-          <th style="width:70px;">Grade</th>
-        </tr>
-      </thead>
-      <tbody id="arrearBody"></tbody>
-    </table>
-    <div id="noArrearsNote">No arrears on record — clean sheet.</div>
-  </div>
+    <div class="card">
+      <h2>Courses</h2>
+      <table>
+        <thead>
+          <tr>
+            <th style="width:24px;">#</th>
+            <th style="font-size: 13px;font-family: var(--font-mono);">Course</th>
+            <th style="width:110px;font-size: 13px;font-family: var(--font-mono);">Credit</th>
+            <th style="width:100px;font-size: 13px;font-family: var(--font-mono);">Grade</th>
+          </tr>
+        </thead>
+        <tbody id="subjectBody"></tbody>
+      </table>
+    </div>
 
-  <div class="modal-bg" id="addSheetBtn">
-    <div class="modal-card" style="max-width: 440px;">
-      <div class="modal-hd">
-        <div>
+    <div class="card">
+      <div class="sem-toggle" style="justify-content: right;">
+        <div id="formMsg"></div>
+        <button class="btn" style="display: none;" id="addSheetOpenBtn" type="button">Add to Sheet</button>
+        <button id="calcBtn">Calculate</button>
+      </div>
+
+      <div id="result">
+        <div class="result-grid">
+          <div class="stat">
+            <div class="label" id="sgpaLabel">Semester 1 SGPA</div>
+            <div class="value" id="sgpaValue">—</div>
+            <div class="note" id="sgpaNote">—</div>
+          </div>
+          <div class="stat">
+            <div class="label">Overall CGPA</div>
+            <div class="value" id="cgpaValue">—</div>
+            <div class="note" id="cgpaNote">Across all semesters on record</div>
+          </div>
+        </div>
+        <div id="serverNote"></div>
+      </div>
+    </div>
+
+    <div class="card" id="arrearCard">
+      <h2>Arrear History</h2>
+      <table id="arrearTable">
+        <thead>
+          <tr>
+            <th>Course</th>
+            <th style="width:110px;">Failed in</th>
+            <th style="width:90px;">Status</th>
+            <th style="width:110px;">Cleared in</th>
+            <th style="width:70px;">Grade</th>
+          </tr>
+        </thead>
+        <tbody id="arrearBody"></tbody>
+      </table>
+      <div id="noArrearsNote">No arrears on record — clean sheet.</div>
+    </div>
+
+    <div class="modal-bg" id="addSheetBtn">
+      <div class="modal-card" style="max-width: 440px;">
+        <div class="modal-hd">
+          <div>
             <div class="modal-title">Confirm entry</div>
-            <div style="font-size: 11.5px; color: var(--ink-soft); margin-top: 3px;"><span>Add this semester's marks to the academic sheet</span></div>
+            <div style="font-size: 11.5px; color: var(--ink-soft); margin-top: 3px;"><span>Add this semester's marks to
+                the academic sheet</span></div>
+          </div>
+          <div class="modal-close" id="addSheetCloseBtn">✖</div>
         </div>
-        <div class="modal-close" id="addSheetCloseBtn">✖</div>
-      </div>
 
-      <div style="padding-bottom: 10px;">
+        <div style="padding-bottom: 10px;">
           <div>
             <span>Your Name: <strong id="m-name">—</strong></span><br>
             <span>Register No: <strong id="m-regno">—</strong></span>
@@ -392,606 +740,636 @@
           <div id="m-status">Checking your details…</div>
           <div id="m-dc-table" style="overflow-x:auto;margin-bottom:4px;"></div>
           <div style="margin-top:8px;font-size:13px;color:var(--ink-soft);">
-              Double-check the marks above before confirming — this writes straight to the sheet.
+            Double-check the marks above before confirming — this writes straight to the sheet.
           </div>
-      </div>
-      <div style="display:flex;justify-content:flex-end;gap:10px;padding-top:10px;border-top:1px solid var(--line);">
-        <button class="btn-sec" type="button" id="addSheetCancelBtn">Cancel</button>
-        <button class="btn-pri" type="button" id="addSheetConfirmBtn" disabled>Confirm & Save</button>
+        </div>
+        <div style="display:flex;justify-content:flex-end;gap:10px;padding-top:10px;border-top:1px solid var(--line);">
+          <button class="btn-sec" type="button" id="addSheetCancelBtn">Cancel</button>
+          <button class="btn-pri" type="button" id="addSheetConfirmBtn" disabled>Confirm & Save</button>
+        </div>
       </div>
     </div>
+
+    <div class="card" id="adminCard" style="display:none;">
+      <h2>Admin — Bulk Convert to Sheets</h2>
+      <div class="reg-row" style="align-items:flex-end;">
+        <div class="reg-field" style="min-width:160px;flex:0 0 160px;">
+          <label for="adminSemester">Semester</label>
+          <select id="adminSemester"
+            style="width:100%;font-family:var(--font-body);font-size:15px;padding:12px 14px;border:1.5px solid var(--line);border-radius:8px;background:#fbfcfb;color:var(--ink);">
+            <option value="1">Semester 1</option>
+            <option value="2">Semester 2</option>
+          </select>
+        </div>
+        <div class="reg-field">
+          <label for="adminSheetId">Sheet ID (optional override)</label>
+          <input type="text" id="adminSheetId" placeholder="Leave blank to use the default sheet">
+        </div>
+      </div>
+      <div style="margin-top:16px;">
+        <button class="btn" id="adminConvertBtn" type="button">Convert All to Sheets</button>
+      </div>
+      <div id="adminStatus" style="margin-top:12px;font-size:13px;color:var(--ink-soft);"></div>
+      <div id="adminResults" style="margin-top:8px;"></div>
+    </div>
+
   </div>
 
-  <div class="card" id="adminCard" style="display:none;">
-    <h2>Admin — Bulk Convert to Sheets</h2>
-    <div class="reg-row" style="align-items:flex-end;">
-      <div class="reg-field" style="min-width:160px;flex:0 0 160px;">
-        <label for="adminSemester">Semester</label>
-        <select id="adminSemester" style="width:100%;font-family:var(--font-body);font-size:15px;padding:12px 14px;border:1.5px solid var(--line);border-radius:8px;background:#fbfcfb;color:var(--ink);">
-          <option value="1">Semester 1</option>
-          <option value="2">Semester 2</option>
-        </select>
-      </div>
-      <div class="reg-field">
-        <label for="adminSheetId">Sheet ID (optional override)</label>
-        <input type="text" id="adminSheetId" placeholder="Leave blank to use the default sheet">
-      </div>
-    </div>
-    <div style="margin-top:16px;">
-      <button class="btn" id="adminConvertBtn" type="button">Convert All to Sheets</button>
-    </div>
-    <div id="adminStatus" style="margin-top:12px;font-size:13px;color:var(--ink-soft);"></div>
-    <div id="adminResults" style="margin-top:8px;"></div>
-  </div>
+  <script>
+    function getToken() { return localStorage.getItem('cgpa_token'); }
 
-</div>
-
-<script>
-  function getToken() { return localStorage.getItem('cgpa_token'); }
-
-  function goToLogin(expired) {
-    localStorage.removeItem('cgpa_token');
-    localStorage.removeItem('cgpa_user');
-    window.location.replace(expired ? '/?expired=1' : '/');
-  }
-
-  async function authFetch(url, options = {}) {
-    const headers = Object.assign({}, options.headers, { Authorization: `Bearer ${getToken()}` });
-    const res = await fetch(url, Object.assign({}, options, { headers }));
-    if (res.status === 401) {
-      goToLogin(true);
-      throw new Error('Session expired');
+    function goToLogin(expired) {
+      localStorage.removeItem('cgpa_token');
+      localStorage.removeItem('cgpa_user');
+      window.location.replace(expired ? '/?expired=1' : '/');
     }
-    return res;
-  }
 
-  function getTokenExpiryMs(token) {
-    try {
-      const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
-      const padded = base64 + '='.repeat((4 - base64.length % 4) % 4);
-      const payload = JSON.parse(atob(padded));
-      return payload.exp ? payload.exp * 1000 : null;
-    } catch (err) {
-      return null;
+    async function authFetch(url, options = {}) {
+      const headers = Object.assign({}, options.headers, { Authorization: `Bearer ${getToken()}` });
+      const res = await fetch(url, Object.assign({}, options, { headers }));
+      if (res.status === 401) {
+        goToLogin(true);
+        throw new Error('Session expired');
+      }
+      return res;
     }
-  }
 
-  function scheduleSessionExpiry() {
-    const token = getToken();
-    if (!token) return;
-    const expiresAt = getTokenExpiryMs(token);
-    if (!expiresAt) return;
-
-    const msRemaining = expiresAt - Date.now();
-    if (msRemaining <= 0) {
-      goToLogin(true);
-      return;
+    function getTokenExpiryMs(token) {
+      try {
+        const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+        const padded = base64 + '='.repeat((4 - base64.length % 4) % 4);
+        const payload = JSON.parse(atob(padded));
+        return payload.exp ? payload.exp * 1000 : null;
+      } catch (err) {
+        return null;
+      }
     }
-    setTimeout(() => goToLogin(true), msRemaining);
-  }
 
-  (async function checkAuthAndStart() {
-    if (!getToken()) { goToLogin(); return; }
-    try {
-      const res = await authFetch('/api/auth/me');
-      const data = await res.json();
-      document.getElementById('accountName').textContent = `${data.user.name} (${data.user.email})`;
-      document.getElementById('logoutBtn').addEventListener('click', () => goToLogin(false));
-      scheduleSessionExpiry();
-      initApp(data.user);
-    } catch (err) {
-      // authFetch already redirects to '/' on a 401 — nothing else to do here.
+    function scheduleSessionExpiry() {
+      const token = getToken();
+      if (!token) return;
+      const expiresAt = getTokenExpiryMs(token);
+      if (!expiresAt) return;
+
+      const msRemaining = expiresAt - Date.now();
+      if (msRemaining <= 0) {
+        goToLogin(true);
+        return;
+      }
+      setTimeout(() => goToLogin(true), msRemaining);
     }
-  })();
 
-  function initApp(currentUser) {
+    (async function checkAuthAndStart() {
+      if (!getToken()) { goToLogin(); return; }
+      try {
+        const res = await authFetch('/api/auth/me');
+        const data = await res.json();
+        document.getElementById('accountName').textContent = `${data.user.name} (${data.user.email})`;
+        document.getElementById('logoutBtn').addEventListener('click', () => goToLogin(false));
+        scheduleSessionExpiry();
+        initApp(data.user);
+      } catch (err) {
+        // authFetch already redirects to '/' on a 401 — nothing else to do here.
+      }
+    })();
 
-  const GRADE_POINTS = { 'S':10, 'A+':9, 'A':8, 'B+':7, 'B':6.5, 'C+':6, 'C':5, 'U':0 };
-  const GRADE_OPTIONS = Object.keys(GRADE_POINTS);
-  const AUDIT_OPTIONS = ['S','U']; // Satisfactory / Unsatisfactory — not credit-weighted
-  const REGNO_PATTERN = /^71402\d{7}$/;
+    function initApp(currentUser) {
 
-  // ---- Curriculum, by semester (same order as the syllabus) --------
-  const SUBJECTS_BY_SEM = {
-    1: [
-      { code:'25ENH101', title:'Professional English', credit:3 },
-      { code:'25MAB101', title:'Engineering Mathematics', credit:4 },
-      { code:'25ECE101', title:'Digital Principles and Computer Organization', credit:3 },
-      { code:'25TAH101', title:'Heritage of Tamils', credit:1 },
-      { code:'25CSE101', title:'Computational Thinking and Problem Solving', credit:3 },
-      { code:'25ITC121', title:'Front End Technologies', credit:4 },
-      { code:'25CSS111', title:'Engineering Exploration I', credit:1 },
-      { code:'25AGB111', title:'Crop Production Laboratory', credit:1 },
-      { code:'25MEB111', title:'Automobile Engine assembly Laboratory', credit:1 },
-      { code:'25CSE111', title:'Computational Thinking and Problem Solving laboratory', credit:1 },
-      { code:'25ENS111', title:'Soft Skills', credit:1 },
-      { code:'25HSH101', title:'Engineering Economics', credit:0, audit:true },
-    ],
-    2: [
-      { code:'25ENH201', title:'English for Career Growth', credit:3 },
-      { code:'25MAB201', title:'Discrete Mathematics And Graph Theory', credit:3 },
-      { code:'25TAH201', title:'Tamils and Technology', credit:1 },
-      { code:'25ITC201', title:'Web Programming Concepts', credit:3 },
-      { code:'25CSC221', title:'Advanced JAVA Programming', credit:4 },
-      { code:'25CSC222', title:'Data Structures and Algorithms I', credit:4 },
-      { code:'25CSS211', title:'Engineering Exploration II', credit:1 },
-      { code:'25MES112', title:'Design Thinking Engineering Laboratory', credit:1 },
-      { code:'25CSC211', title:'Web Programming laboratory', credit:1 },
-      { code:'25ENS211', title:'Personality Development', credit:1 },
-      { code:'25HSH102', title:'Psychology', credit:0, audit:true },
-    ],
-  };
+      const GRADE_POINTS = { 'S': 10, 'A+': 9, 'A': 8, 'B+': 7, 'B': 6.5, 'C+': 6, 'C': 5, 'U': 0 };
+      const GRADE_OPTIONS = Object.keys(GRADE_POINTS);
+      const AUDIT_OPTIONS = ['S', 'U']; // Satisfactory / Unsatisfactory — not credit-weighted
+      const REGNO_PATTERN = /^71402\d{7}$/;
 
-  // ---- State ---------------------------------------------------------
-  let currentSemester = 1;
-  let arrearRows = []; // subjects carried into Semester 2 because they were 'U' in Semester 1
+      // ---- Curriculum, by semester (same order as the syllabus) --------
+      const SUBJECTS_BY_SEM = {
+        1: [
+          { code: '25ENH101', title: 'Professional English', credit: 3, arrear: 1 },
+          { code: '25MAB101', title: 'Engineering Mathematics', credit: 4, arrear: 1 },
+          { code: '25ECE101', title: 'Digital Principles and Computer Organization', credit: 3, arrear: 1 },
+          { code: '25TAH101', title: 'Heritage of Tamils', credit: 1, arrear: 1 },
+          { code: '25CSE101', title: 'Computational Thinking and Problem Solving', credit: 3, arrear: 1 },
+          { code: '25ITC121', title: 'Front End Technologies', credit: 4, arrear: 2 },
+          { code: '25CSS111', title: 'Engineering Exploration I', credit: 1, arrear: 1 },
+          { code: '25AGB111', title: 'Crop Production Laboratory', credit: 1, arrear: 1 },
+          { code: '25MEB111', title: 'Automobile Engine assembly Laboratory', credit: 1, arrear: 1 },
+          { code: '25CSE111', title: 'Computational Thinking and Problem Solving laboratory', credit: 1, arrear: 1 },
+          { code: '25ENS111', title: 'Soft Skills', credit: 1, arrear: 1 },
+          { code: '25HSH101', title: 'Engineering Economics', credit: 0, audit: true, arrear: 1 },
+        ],
+        2: [
+          { code: '25ENH201', title: 'English for Career Growth', credit: 3, arrear: 1 },
+          { code: '25MAB201', title: 'Discrete Mathematics And Graph Theory', credit: 3, arrear: 1 },
+          { code: '25TAH201', title: 'Tamils and Technology', credit: 1, arrear: 1 },
+          { code: '25ITC201', title: 'Web Programming Concepts', credit: 3, arrear: 1 },
+          { code: '25CSC221', title: 'Advanced JAVA Programming', credit: 4, arrear: 2 },
+          { code: '25CSC222', title: 'Data Structures and Algorithms I', credit: 4, arrear: 2 },
+          { code: '25CSS211', title: 'Engineering Exploration II', credit: 1, arrear: 1 },
+          { code: '25MES112', title: 'Design Thinking Engineering Laboratory', credit: 1, arrear: 1 },
+          { code: '25CSC211', title: 'Web Programming laboratory', credit: 1, arrear: 1 },
+          { code: '25ENS211', title: 'Personality Development', credit: 1, arrear: 1 },
+          { code: '25HSH102', title: 'Psychology', credit: 0, audit: true, arrear: 1 },
+        ],
+      };
 
-  // ---- DOM refs --------------------------------------------------------
-  const tbody = document.getElementById('subjectBody');
-  const nameInput = document.getElementById('studentName');
-  const regInput = document.getElementById('regNo');
-  const regHint = document.getElementById('regHint');
-  const contextNote = document.getElementById('contextNote');
-  const calcBtn = document.getElementById('calcBtn');
-  const formMsg = document.getElementById('formMsg');
-  const resultBox = document.getElementById('result');
-  const serverNote = document.getElementById('serverNote');
-  const pageTitle = document.getElementById('pageTitle');
-  const sgpaLabel = document.getElementById('sgpaLabel');
-  const arrearCard = document.getElementById('arrearCard');
-  const arrearTable = document.getElementById('arrearTable');
-  const arrearBody = document.getElementById('arrearBody');
-  const noArrearsNote = document.getElementById('noArrearsNote');
+      // ---- State ---------------------------------------------------------
+      let currentSemester = 1;
+      let arrearRows = []; // subjects carried into Semester 2 because they were 'U' in Semester 1
 
-  if (currentUser && currentUser.name) nameInput.value = currentUser.name;
+      // ---- DOM refs --------------------------------------------------------
+      const tbody = document.getElementById('subjectBody');
+      const nameInput = document.getElementById('studentName');
+      const regInput = document.getElementById('regNo');
+      const regHint = document.getElementById('regHint');
+      const contextNote = document.getElementById('contextNote');
+      const calcBtn = document.getElementById('calcBtn');
+      const formMsg = document.getElementById('formMsg');
+      const resultBox = document.getElementById('result');
+      const serverNote = document.getElementById('serverNote');
+      const pageTitle = document.getElementById('pageTitle');
+      const sgpaLabel = document.getElementById('sgpaLabel');
+      const arrearCard = document.getElementById('arrearCard');
+      const arrearTable = document.getElementById('arrearTable');
+      const arrearBody = document.getElementById('arrearBody');
+      const noArrearsNote = document.getElementById('noArrearsNote');
 
-  // If this account has a saved register number from a previous visit,
-  // load it straight away so their saved semester data shows immediately.
-  if (currentUser && currentUser.registerNo && REGNO_PATTERN.test(currentUser.registerNo)) {
-    regInput.value = currentUser.registerNo;
-    regInput.classList.add('valid');
-    loadContextForCurrentState();
-  }
+      if (currentUser && currentUser.name) nameInput.value = currentUser.name;
 
-  // ---- Render subject rows for the active semester + any arrears ------
-  function renderSubjects() {
-    tbody.innerHTML = '';
-    const combined = [...SUBJECTS_BY_SEM[currentSemester], ...arrearRows];
-    const maxCredit = Math.max(...combined.map(s => s.credit), 1);
+      // If this account has a saved register number from a previous visit,
+      // load it straight away so their saved semester data shows immediately.
+      if (currentUser && currentUser.registerNo && REGNO_PATTERN.test(currentUser.registerNo)) {
+        regInput.value = currentUser.registerNo;
+        regInput.classList.add('valid');
+        loadContextForCurrentState();
+      }
 
-    combined.forEach((s, i) => {
-      const tr = document.createElement('tr');
-      if (s.audit) tr.className = 'audit-row';
-      if (s.arrear) tr.className = 'arrear-row';
+      // ---- Render subject rows for the active semester + any arrears ------
+      function renderSubjects() {
+        tbody.innerHTML = '';
+        const combined = [...SUBJECTS_BY_SEM[currentSemester], ...arrearRows];
+        const maxCredit = Math.max(...combined.map(s => s.credit), 1);
 
-      const dots = Array.from({length: maxCredit}, (_, d) =>
-        `<span class="dot ${d < s.credit ? 'on' : ''}"></span>`).join('');
+        combined.forEach((s, i) => {
+          const tr = document.createElement('tr');
+          if (s.audit) tr.className = 'audit-row';
+          if (s.isArrearClearance) tr.className = 'arrear-row';
 
-      const options = (s.audit ? AUDIT_OPTIONS : GRADE_OPTIONS)
-        .map(g => `<option value="${g}">${g}</option>`).join('');
+          const dots = Array.from({ length: maxCredit }, (_, d) =>
+            `<span class="dot ${d < s.credit ? 'on' : ''}"></span>`).join('');
 
-      const catTag = s.arrear
-        ? `<span class="cat arrear-cat">ARREAR · SEM ${s.originalSemester}</span>`
-        : ``;
+          const options = (s.audit ? AUDIT_OPTIONS : GRADE_OPTIONS)
+            .map(g => `<option value="${g}">${g}</option>`).join('');
 
-      tr.innerHTML = `
+          const catTag = s.isArrearClearance
+            ? `<span class="cat arrear-cat">ARREAR · SEM ${s.originalSemester}</span>`
+            : ``;
+
+          tr.innerHTML = `
         <td>${i + 1}</td>
         <td class="title-cell">
           <div class="code">${s.code}</div>
           <span class="name">${s.title}</span>
           ${catTag}
           ${s.audit ? '<div class="audit-tag">Audit · not counted in CGPA</div>' : ''}
-          ${s.arrear ? `<div class="arrear-tag">Failed in Semester ${s.originalSemester} — enter the grade you cleared it with</div>` : ''}
+          ${s.isArrearClearance ? `<div class="arrear-tag">Failed in Semester ${s.originalSemester} — enter the grade you cleared it with</div>` : ''}
         </td>
         <td><div class="weight">${dots}<span class="num">${s.credit}</span></div></td>
         <td><select class="grade" data-code="${s.code}"><option value="" selected disabled>—</option>${options}</select></td>
       `;
-      tbody.appendChild(tr);
-    });
-  }
-
-  // ---- Prefill grades from a previously-saved record for this semester -
-  function prefillGrades(record) {
-    if (!record || !Array.isArray(record.subjects)) return;
-    record.subjects.forEach(s => {
-      const sel = document.querySelector(`select[data-code="${s.code}"]`);
-      if (sel && s.grade) sel.value = s.grade;
-    });
-  }
-
-  // ---- Look up Semester 1 arrears + any saved record for this semester -
-  async function loadContextForCurrentState() {
-    const regNo = regInput.value.trim();
-    arrearRows = [];
-    let savedRecord = null;
-    let sem1Record = null;
-
-    if (currentSemester === 2) {
-      contextNote.textContent = 'Checking Semester 1 record…';
-      try {
-        const res = await authFetch(`/api/grades/record/${regNo}/1`);
-        if (res.ok) {
-          const data = await res.json();
-          sem1Record = data.record;
-        }
-      } catch (e) { /* offline — proceed without arrear detection */ }
-
-      if (sem1Record) {
-        arrearRows = sem1Record.subjects
-          .filter(s => s.grade === 'U' && s.credit > 0)
-          .map(s => ({ code: s.code, title: s.title, credit: s.credit, arrear: true, originalSemester: 1 }));
+          tbody.appendChild(tr);
+        });
       }
-    }
 
-    try {
-      const res2 = await authFetch(`/api/grades/record/${regNo}/${currentSemester}`);
-      if (res2.ok) {
-        const data2 = await res2.json();
-        savedRecord = data2.record;
+      // ---- Prefill grades from a previously-saved record for this semester -
+      function prefillGrades(record) {
+        if (!record || !Array.isArray(record.subjects)) return;
+        record.subjects.forEach(s => {
+          const sel = document.querySelector(`select[data-code="${s.code}"]`);
+          if (sel && s.grade) sel.value = s.grade;
+        });
       }
-    } catch (e) { /* ignore — nothing saved yet, or offline */ }
 
-    renderSubjects();
-    if (savedRecord) prefillGrades(savedRecord);
-
-    if (currentSemester === 2) {
-      if (!sem1Record) {
-        contextNote.textContent = 'No Semester 1 record found for this register number — enter Semester 1 first so arrears carry over automatically.';
-      } else if (arrearRows.length > 0) {
-        contextNote.textContent = `${arrearRows.length} arrear${arrearRows.length > 1 ? 's' : ''} carried over from Semester 1 — shown in amber below.`;
-      } else {
-        contextNote.textContent = 'No arrears from Semester 1.';
-      }
-    } else {
-      contextNote.textContent = '';
-    }
-
-    // ---- Show previously-saved SGPA / CGPA / arrear history, if any ----
-    if (savedRecord) {
-      document.getElementById('sgpaValue').textContent = savedRecord.sgpa != null ? savedRecord.sgpa.toFixed(2) : '—';
-      document.getElementById('sgpaNote').textContent = savedRecord.totalCredits
-        ? `Weighted across ${savedRecord.totalCredits} credits`
-        : '—';
-      document.getElementById('cgpaValue').textContent = '—';
-      document.getElementById('cgpaNote').textContent = 'Fetching full record…';
-      serverNote.textContent = '';
-      resultBox.style.display = 'block';
-
-      try {
-        const cgpaRes = await authFetch(`/api/grades/cgpa/${regNo}`);
-        if (cgpaRes.ok) {
-          const cgpaData = await cgpaRes.json();
-          document.getElementById('cgpaValue').textContent = cgpaData.cgpa != null ? cgpaData.cgpa.toFixed(2) : '—';
-          document.getElementById('cgpaNote').textContent =
-            `Across ${cgpaData.semestersRecorded} semester${cgpaData.semestersRecorded === 1 ? '' : 's'} on record`;
-        }
-      } catch (e) { /* offline — this semester's saved SGPA still shows above */ }
-
-      try {
-        const arrearRes = await authFetch(`/api/grades/arrears/${regNo}`);
-        if (arrearRes.ok) {
-          const arrearData = await arrearRes.json();
-          renderArrearHistory(arrearData.arrears);
-        }
-      } catch (e) { /* ignore — arrear card just stays hidden */ }
-    } else {
-      resultBox.style.display = 'none';
-      arrearCard.style.display = 'none';
-    }
-  }
-
-  // ---- Semester toggle -------------------------------------------------
-  document.querySelectorAll('.sem-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.sem-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      currentSemester = Number(btn.dataset.sem);
-
-      pageTitle.textContent = `Semester ${currentSemester} Grade Entry`;
-      document.title = `Semester ${currentSemester} — Grade Entry`;
-      sgpaLabel.textContent = `Semester ${currentSemester} SGPA`;
-
-      resultBox.style.display = 'none';
-      arrearCard.style.display = 'none';
-      formMsg.textContent = '';
-      serverNote.textContent = '';
-
-      if (REGNO_PATTERN.test(regInput.value)) {
-        loadContextForCurrentState();
-      } else {
+      // ---- Look up Semester 1 arrears + any saved record for this semester -
+      async function loadContextForCurrentState() {
+        const regNo = regInput.value.trim();
         arrearRows = [];
+        let savedRecord = null;
+        let sem1Record = null;
+
+        if (currentSemester === 2) {
+          contextNote.textContent = 'Checking Semester 1 record…';
+          try {
+            const res = await authFetch(`/api/grades/record/${regNo}/1`);
+            if (res.ok) {
+              const data = await res.json();
+              sem1Record = data.record;
+            }
+          } catch (e) { /* offline — proceed without arrear detection */ }
+
+          if (sem1Record) {
+            arrearRows = sem1Record.subjects
+              .filter(s => s.grade === 'U' && s.credit > 0)
+              .map(s => ({
+                code: s.code,
+                title: s.title,
+                credit: s.credit,
+                arrear: s.arrearCount || 1,
+                isArrearClearance: true,
+                originalSemester: 1
+              }));
+          }
+        }
+
+        try {
+          const res2 = await authFetch(`/api/grades/record/${regNo}/${currentSemester}`);
+          if (res2.ok) {
+            const data2 = await res2.json();
+            savedRecord = data2.record;
+          }
+        } catch (e) { /* ignore — nothing saved yet, or offline */ }
+
         renderSubjects();
+        if (savedRecord) prefillGrades(savedRecord);
+
+        if (currentSemester === 2) {
+          if (!sem1Record) {
+            contextNote.textContent = 'No Semester 1 record found for this register number — enter Semester 1 first so arrears carry over automatically.';
+          } else if (arrearRows.length > 0) {
+            contextNote.textContent = `${arrearRows.length} arrear${arrearRows.length > 1 ? 's' : ''} carried over from Semester 1 — shown in amber below.`;
+          } else {
+            contextNote.textContent = 'No arrears from Semester 1.';
+          }
+        } else {
+          contextNote.textContent = '';
+        }
+
+        // ---- Show previously-saved SGPA / CGPA / arrear history, if any ----
+        if (savedRecord) {
+          document.getElementById('sgpaValue').textContent = savedRecord.sgpa != null ? savedRecord.sgpa.toFixed(2) : '—';
+          document.getElementById('sgpaNote').textContent = savedRecord.totalCredits != null
+            ? `Credits Earned: ${savedRecord.totalCredits}`
+            : '—';
+          document.getElementById('cgpaValue').textContent = '—';
+          document.getElementById('cgpaNote').textContent = 'Fetching full record…';
+          serverNote.textContent = '';
+          resultBox.style.display = 'block';
+
+          try {
+            const cgpaRes = await authFetch(`/api/grades/cgpa/${regNo}`);
+            if (cgpaRes.ok) {
+              const cgpaData = await cgpaRes.json();
+              document.getElementById('cgpaValue').textContent = cgpaData.cgpa != null ? cgpaData.cgpa.toFixed(2) : '—';
+              document.getElementById('cgpaNote').textContent =
+                `Across ${cgpaData.semestersRecorded} semester${cgpaData.semestersRecorded === 1 ? '' : 's'} on record`;
+            }
+          } catch (e) { /* offline — this semester's saved SGPA still shows above */ }
+
+          try {
+            const arrearRes = await authFetch(`/api/grades/arrears/${regNo}`);
+            if (arrearRes.ok) {
+              const arrearData = await arrearRes.json();
+              renderArrearHistory(arrearData.arrears);
+            }
+          } catch (e) { /* ignore — arrear card just stays hidden */ }
+        } else {
+          resultBox.style.display = 'none';
+          arrearCard.style.display = 'none';
+        }
       }
-    });
-  });
 
-  // ---- Register number validation -----------------------------------
-  regInput.addEventListener('input', () => {
-    regInput.value = regInput.value.replace(/\D/g, '').slice(0, 12);
-    const ok = REGNO_PATTERN.test(regInput.value);
-    regInput.classList.toggle('valid', ok);
-    regInput.classList.toggle('invalid', regInput.value.length > 0 && !ok);
-    regHint.classList.toggle('err', regInput.value.length > 0 && !ok);
-    regHint.textContent = (regInput.value.length > 0 && !ok)
-      ? 'Not a valid register number — needs 71402 + 7 digits'
-      : 'Format: 71402 followed by 7 digits (12 digits total)';
+      // ---- Semester toggle -------------------------------------------------
+      document.querySelectorAll('.sem-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.sem-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentSemester = Number(btn.dataset.sem);
 
-    resultBox.style.display = 'none';
-    arrearCard.style.display = 'none';
+          pageTitle.textContent = `Semester ${currentSemester} Grade Entry`;
+          document.title = `Semester ${currentSemester} — Grade Entry`;
+          sgpaLabel.textContent = `Semester ${currentSemester} SGPA`;
 
-    if (ok) {
-      loadContextForCurrentState();
-    } else {
-      arrearRows = [];
-      renderSubjects();
-    }
-  });
+          resultBox.style.display = 'none';
+          arrearCard.style.display = 'none';
+          formMsg.textContent = '';
+          serverNote.textContent = '';
 
-  // ---- Render arrear history table --------------------------------------
-  function renderArrearHistory(arrears) {
-    arrearBody.innerHTML = '';
-    arrearCard.style.display = 'block';
+          if (REGNO_PATTERN.test(regInput.value)) {
+            loadContextForCurrentState();
+          } else {
+            arrearRows = [];
+            renderSubjects();
+          }
+        });
+      });
 
-    if (!arrears || arrears.length === 0) {
-      arrearTable.style.display = 'none';
-      noArrearsNote.style.display = 'block';
-      return;
-    }
+      // ---- Register number validation -----------------------------------
+      regInput.addEventListener('input', () => {
+        regInput.value = regInput.value.replace(/\D/g, '').slice(0, 12);
+        const ok = REGNO_PATTERN.test(regInput.value);
+        regInput.classList.toggle('valid', ok);
+        regInput.classList.toggle('invalid', regInput.value.length > 0 && !ok);
+        regHint.classList.toggle('err', regInput.value.length > 0 && !ok);
+        regHint.textContent = (regInput.value.length > 0 && !ok)
+          ? 'Not a valid register number — needs 71402 + 7 digits'
+          : 'Format: 71402 followed by 7 digits (12 digits total)';
 
-    arrearTable.style.display = 'table';
-    noArrearsNote.style.display = 'none';
+        resultBox.style.display = 'none';
+        arrearCard.style.display = 'none';
 
-    arrears.forEach(a => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
+        if (ok) {
+          loadContextForCurrentState();
+        } else {
+          arrearRows = [];
+          renderSubjects();
+        }
+      });
+
+      // ---- Render arrear history table --------------------------------------
+      function renderArrearHistory(arrears) {
+        arrearBody.innerHTML = '';
+        arrearCard.style.display = 'block';
+
+        if (!arrears || arrears.length === 0) {
+          arrearTable.style.display = 'none';
+          noArrearsNote.style.display = 'block';
+          return;
+        }
+
+        arrearTable.style.display = 'table';
+        noArrearsNote.style.display = 'none';
+
+        let grandTotal = 0;
+        arrears.forEach(a => {
+          const weight = a.arrearCount || 1;
+          grandTotal += weight;
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
         <td><div class="code">${a.code}</div><span class="name">${a.title}</span></td>
         <td>Semester ${a.failedInSemester}</td>
         <td><span class="status-pill ${a.status}">${a.status === 'cleared' ? 'Cleared' : 'Pending'}</span></td>
         <td>${a.clearedInSemester ? 'Semester ' + a.clearedInSemester : '—'}</td>
         <td>${a.clearedGrade || '—'}</td>
+        <td><span class="code" style="color:var(--ink);">${weight}</span></td>
       `;
-      arrearBody.appendChild(tr);
-    });
-  }
-
-  // ---- Calculate SGPA + CGPA -------------------------------------------
-  calcBtn.addEventListener('click', async () => {
-    formMsg.textContent = '';
-    serverNote.textContent = '';
-
-    const studentName = nameInput.value.trim();
-    if (!studentName) {
-      formMsg.textContent = 'Enter the student name before calculating.';
-      nameInput.focus();
-      return;
-    }
-
-    const registerNo = regInput.value.trim();
-    if (!REGNO_PATTERN.test(registerNo)) {
-      formMsg.textContent = 'Enter a valid register number before calculating.';
-      regInput.focus();
-      return;
-    }
-
-    const rows = [...document.querySelectorAll('select.grade')];
-    const missing = rows.some(r => !r.value);
-    if (missing) {
-      formMsg.textContent = 'Select a grade for every course.';
-      return;
-    }
-
-    // Build subject+grade payload. Regular (non-audit, non-arrear) rows
-    // determine THIS semester's own SGPA — arrear-clearance rows are
-    // resits, not part of this semester's registered credit load, so
-    // they're saved (for CGPA/arrear tracking) but excluded from SGPA.
-    const combined = [...SUBJECTS_BY_SEM[currentSemester], ...arrearRows];
-    let creditSum = 0, weightedSum = 0;
-    const subjectsPayload = combined.map(s => {
-      const grade = document.querySelector(`select[data-code="${s.code}"]`).value;
-      const gradePoint = s.audit ? null : GRADE_POINTS[grade];
-      if (!s.audit && !s.arrear) {
-        creditSum += s.credit;
-        weightedSum += s.credit * gradePoint;
-      }
-      return {
-        code: s.code,
-        title: s.title,
-        credit: s.credit,
-        grade,
-        gradePoint,
-        isArrearClearance: !!s.arrear,
-        originalSemester: s.arrear ? s.originalSemester : null
-      };
-    });
-    const sgpa = weightedSum / creditSum;
-
-    document.getElementById('sgpaValue').textContent = sgpa.toFixed(2);
-    document.getElementById('sgpaNote').textContent = `Weighted across ${creditSum} credits`;
-    document.getElementById('cgpaValue').textContent = sgpa.toFixed(2);
-    document.getElementById('cgpaNote').textContent = 'Fetching full record…';
-    resultBox.style.display = 'block';
-
-    calcBtn.disabled = true;
-    calcBtn.textContent = 'Calculating…';
-
-    try {
-      // Save this semester's grades (including any arrear clearances)
-      await authFetch(`/api/grades/${currentSemester}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ registerNo, studentName, subjects: subjectsPayload, sgpa, totalCredits: creditSum })
-      }).then(r => { if (!r.ok) throw new Error('save failed'); });
-
-      // Fetch true cumulative CGPA across every stored semester
-      const cgpaRes = await authFetch(`/api/grades/cgpa/${registerNo}`);
-      if (!cgpaRes.ok) throw new Error('cgpa fetch failed');
-      const cgpaData = await cgpaRes.json();
-
-      document.getElementById('cgpaValue').textContent = cgpaData.cgpa != null ? cgpaData.cgpa.toFixed(2) : '—';
-      document.getElementById('cgpaNote').textContent =
-        `Across ${cgpaData.semestersRecorded} semester${cgpaData.semestersRecorded === 1 ? '' : 's'} on record`;
-
-      // Fetch arrear history
-      const arrearRes = await authFetch(`/api/grades/arrears/${registerNo}`);
-      if (arrearRes.ok) {
-        const arrearData = await arrearRes.json();
-        renderArrearHistory(arrearData.arrears);
-      }
-    } catch (err) {
-      serverNote.textContent = 'Could not reach the server — showing this semester\'s SGPA only, not yet saved.';
-    } finally {
-      calcBtn.disabled = false;
-      calcBtn.textContent = 'Calculate';
-    }
-  });
-
-  // ---- Add to Sheet -------------------------------------------------------
-  const sheetModal = document.getElementById('addSheetBtn');
-  const sheetStatus = document.getElementById('m-status');
-  const sheetNameOut = document.getElementById('m-name');
-  const sheetRegOut = document.getElementById('m-regno');
-  const sheetTable = document.getElementById('m-dc-table');
-  const sheetOpenBtn = document.getElementById('addSheetOpenBtn');
-  const sheetCancelBtn = document.getElementById('addSheetCancelBtn');
-  const sheetCloseBtn = document.getElementById('addSheetCloseBtn');
-  const sheetConfirmBtn = document.getElementById('addSheetConfirmBtn');
-
-  function openSheetModal() { sheetModal.classList.add('open'); }
-  function closeSheetModal() { sheetModal.classList.remove('open'); }
-
-  function setSheetStatus(text, tone) {
-    sheetStatus.textContent = text;
-    sheetStatus.style.color = tone === 'error' ? 'var(--red)' : tone === 'ok' ? 'var(--green-deep)' : 'var(--ink-soft)';
-  }
-
-  function renderSheetPreview(preview) {
-    if (!preview || !preview.length) {
-      sheetTable.innerHTML = '<div class="hint">No subjects in this record match the sheet\'s columns.</div>';
-      return;
-    }
-    const rows = preview.map(p => `<tr><td class="code">${p.code}</td><td>${p.grade}</td></tr>`).join('');
-    sheetTable.innerHTML = `<table><thead><tr><th>Course</th><th>Grade</th></tr></thead><tbody>${rows}</tbody></table>`;
-  }
-
-  // Checks the typed name + register number against the sheet and shows a
-  // preview of what would be written — nothing is saved until Confirm.
-  async function runSheetCheck() {
-    const studentNameVal = nameInput.value.trim();
-    const registerNoVal = regInput.value.trim();
-
-    sheetNameOut.textContent = studentNameVal || '—';
-    sheetRegOut.textContent = registerNoVal || '—';
-    sheetTable.innerHTML = '';
-    sheetConfirmBtn.disabled = true;
-
-    if (!studentNameVal || !REGNO_PATTERN.test(registerNoVal)) {
-      setSheetStatus('Enter the student name and a valid register number first.', 'error');
-      return;
-    }
-
-    setSheetStatus('Checking your details against the sheet…', 'muted');
-
-    try {
-      const res = await authFetch('/api/sheets/add', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ registerNo: registerNoVal, studentName: studentNameVal, semester: currentSemester, dryRun: true })
-      });
-      const data = await res.json();
-      if (!res.ok || !data.match) {
-        setSheetStatus(data.error || 'Could not verify your details against the sheet.', 'error');
-        return;
-      }
-      setSheetStatus('Details verified — review the marks below, then confirm.', 'ok');
-      renderSheetPreview(data.preview);
-      sheetConfirmBtn.disabled = false;
-    } catch (err) {
-      setSheetStatus('Could not reach the server. Try again.', 'error');
-    }
-  }
-
-  sheetOpenBtn.addEventListener('click', () => {
-    openSheetModal();
-    runSheetCheck();
-  });
-  sheetCancelBtn.addEventListener('click', closeSheetModal);
-  sheetCloseBtn.addEventListener('click', closeSheetModal);
-
-  sheetConfirmBtn.addEventListener('click', async () => {
-    sheetConfirmBtn.disabled = true;
-    sheetConfirmBtn.textContent = 'Saving…';
-    setSheetStatus('Saving to the sheet…', 'muted');
-    try {
-      const res = await authFetch('/api/sheets/add', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          registerNo: regInput.value.trim(),
-          studentName: nameInput.value.trim(),
-          semester: currentSemester,
-          dryRun: false
-        })
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Could not save to the sheet.');
-      setSheetStatus('Saved to the sheet.', 'ok');
-      sheetConfirmBtn.textContent = 'Saved';
-      setTimeout(closeSheetModal, 1200);
-    } catch (err) {
-      setSheetStatus(err.message, 'error');
-      sheetConfirmBtn.disabled = false;
-      sheetConfirmBtn.textContent = 'Confirm & Save';
-    }
-  });
-
-  // ---- Admin: bulk convert to Sheets --------------------------------------
-  const ADMIN_EMAIL = 'ragula25cs@srishakthi.ac.in';
-  const adminCard = document.getElementById('adminCard');
-  if (currentUser && currentUser.email && currentUser.email.toLowerCase() === ADMIN_EMAIL) {
-    adminCard.style.display = 'block';
-
-    const adminSemesterSel = document.getElementById('adminSemester');
-    const adminSheetIdInput = document.getElementById('adminSheetId');
-    const adminConvertBtn = document.getElementById('adminConvertBtn');
-    const adminStatus = document.getElementById('adminStatus');
-    const adminResults = document.getElementById('adminResults');
-
-    adminConvertBtn.addEventListener('click', async () => {
-      const semester = Number(adminSemesterSel.value);
-      const sheetId = adminSheetIdInput.value.trim();
-
-      adminConvertBtn.disabled = true;
-      adminConvertBtn.textContent = 'Converting…';
-      adminStatus.textContent = 'Uploading every saved record for this semester — this can take a moment…';
-      adminResults.innerHTML = '';
-
-      try {
-        const res = await authFetch('/api/sheets/convert-all', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ semester, sheetId: sheetId || undefined })
+          arrearBody.appendChild(tr);
         });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || 'Bulk conversion failed.');
 
-        adminStatus.textContent = `Done — ${data.updated} of ${data.total} record(s) written${data.skipped.length ? `, ${data.skipped.length} skipped` : ''}.`;
-
-        if (data.skipped.length) {
-          const rows = data.skipped.map(s => `<tr><td class="code">${s.registerNo}</td><td>${s.reason}</td></tr>`).join('');
-          adminResults.innerHTML = `<table><thead><tr><th>Register No</th><th>Reason skipped</th></tr></thead><tbody>${rows}</tbody></table>`;
-        }
-      } catch (err) {
-        adminStatus.textContent = err.message;
-      } finally {
-        adminConvertBtn.disabled = false;
-        adminConvertBtn.textContent = 'Convert All to Sheets';
+        // Grand-total footer row
+        const tfoot = document.createElement('tr');
+        tfoot.style.borderTop = '2px solid var(--line)';
+        tfoot.style.fontWeight = '600';
+        tfoot.innerHTML = `
+      <td colspan="5" style="font-family:var(--font-mono);font-size:12.5px;color:var(--ink-soft);padding-top:10px;">Total arrear count (all semesters)</td>
+      <td style="font-family:var(--font-display);font-size:15px;color:var(--ink);padding-top:10px;">${grandTotal}</td>
+    `;
+        arrearBody.appendChild(tfoot);
       }
-    });
-  }
 
-  // ---- Initial render ----------------------------------------------------
-  renderSubjects();
-  }
-</script>
+      // ---- Calculate SGPA + CGPA -------------------------------------------
+      calcBtn.addEventListener('click', async () => {
+        formMsg.textContent = '';
+        serverNote.textContent = '';
+
+        const studentName = nameInput.value.trim();
+        if (!studentName) {
+          formMsg.textContent = 'Enter the student name before calculating.';
+          nameInput.focus();
+          return;
+        }
+
+        const registerNo = regInput.value.trim();
+        if (!REGNO_PATTERN.test(registerNo)) {
+          formMsg.textContent = 'Enter a valid register number before calculating.';
+          regInput.focus();
+          return;
+        }
+
+        const rows = [...document.querySelectorAll('select.grade')];
+        const missing = rows.some(r => !r.value);
+        if (missing) {
+          formMsg.textContent = 'Select a grade for every course.';
+          return;
+        }
+
+        // Build subject+grade payload. Regular (non-audit, non-arrear) rows
+        // determine THIS semester's own SGPA — arrear-clearance rows are
+        // resits, not part of this semester's registered credit load, so
+        // they're saved (for CGPA/arrear tracking) but excluded from SGPA.
+        const combined = [...SUBJECTS_BY_SEM[currentSemester], ...arrearRows];
+        let creditSum = 0, weightedSum = 0;
+        let earnedCredits = 0;
+        const subjectsPayload = combined.map(s => {
+          const grade = document.querySelector(`select[data-code="${s.code}"]`).value;
+          const gradePoint = s.audit ? null : GRADE_POINTS[grade];
+          if (!s.audit && !s.isArrearClearance) {
+            creditSum += s.credit;
+            weightedSum += s.credit * gradePoint;
+            if (grade !== 'U') {
+              earnedCredits += s.credit;
+            }
+          }
+          return {
+            code: s.code,
+            title: s.title,
+            credit: s.credit,
+            grade,
+            gradePoint,
+            arrearCount: s.arrear || 1,   // weighted arrear value saved to DB
+            isArrearClearance: !!s.isArrearClearance,
+            originalSemester: s.isArrearClearance ? s.originalSemester : null
+          };
+        });
+        const sgpa = weightedSum / creditSum;
+        // totalCredits = sum of (s.credit * s.gradePoint) for all non-audit, non-arrear subjects
+        const totalCredits = weightedSum;
+
+        document.getElementById('sgpaValue').textContent = sgpa.toFixed(2);
+        document.getElementById('sgpaNote').textContent = `Credits Earned: ${totalCredits} (across ${creditSum} registered credits)`;
+        document.getElementById('cgpaValue').textContent = sgpa.toFixed(2);
+        document.getElementById('cgpaNote').textContent = 'Fetching full record…';
+        resultBox.style.display = 'block';
+
+        calcBtn.disabled = true;
+        calcBtn.textContent = 'Calculating…';
+
+        try {
+          // Save this semester's grades (including any arrear clearances)
+          await authFetch(`/api/grades/${currentSemester}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ registerNo, studentName, subjects: subjectsPayload, sgpa, totalCredits })
+          }).then(r => { if (!r.ok) throw new Error('save failed'); });
+
+          // Fetch true cumulative CGPA across every stored semester
+          const cgpaRes = await authFetch(`/api/grades/cgpa/${registerNo}`);
+          if (!cgpaRes.ok) throw new Error('cgpa fetch failed');
+          const cgpaData = await cgpaRes.json();
+
+          document.getElementById('cgpaValue').textContent = cgpaData.cgpa != null ? cgpaData.cgpa.toFixed(2) : '—';
+          document.getElementById('cgpaNote').textContent =
+            `Across ${cgpaData.semestersRecorded} semester${cgpaData.semestersRecorded === 1 ? '' : 's'} on record`;
+
+          // Fetch arrear history
+          const arrearRes = await authFetch(`/api/grades/arrears/${registerNo}`);
+          if (arrearRes.ok) {
+            const arrearData = await arrearRes.json();
+            renderArrearHistory(arrearData.arrears);
+          }
+        } catch (err) {
+          serverNote.textContent = 'Could not reach the server — showing this semester\'s SGPA only, not yet saved.';
+        } finally {
+          calcBtn.disabled = false;
+          calcBtn.textContent = 'Calculate';
+        }
+      });
+
+      // ---- Add to Sheet -------------------------------------------------------
+      const sheetModal = document.getElementById('addSheetBtn');
+      const sheetStatus = document.getElementById('m-status');
+      const sheetNameOut = document.getElementById('m-name');
+      const sheetRegOut = document.getElementById('m-regno');
+      const sheetTable = document.getElementById('m-dc-table');
+      const sheetOpenBtn = document.getElementById('addSheetOpenBtn');
+      const sheetCancelBtn = document.getElementById('addSheetCancelBtn');
+      const sheetCloseBtn = document.getElementById('addSheetCloseBtn');
+      const sheetConfirmBtn = document.getElementById('addSheetConfirmBtn');
+
+      function openSheetModal() { sheetModal.classList.add('open'); }
+      function closeSheetModal() { sheetModal.classList.remove('open'); }
+
+      function setSheetStatus(text, tone) {
+        sheetStatus.textContent = text;
+        sheetStatus.style.color = tone === 'error' ? 'var(--red)' : tone === 'ok' ? 'var(--green-deep)' : 'var(--ink-soft)';
+      }
+
+      function renderSheetPreview(preview) {
+        if (!preview || !preview.length) {
+          sheetTable.innerHTML = '<div class="hint">No subjects in this record match the sheet\'s columns.</div>';
+          return;
+        }
+        const rows = preview.map(p => `<tr><td class="code">${p.code}</td><td>${p.grade}</td></tr>`).join('');
+        sheetTable.innerHTML = `<table><thead><tr><th>Course</th><th>Grade</th></tr></thead><tbody>${rows}</tbody></table>`;
+      }
+
+      // Checks the typed name + register number against the sheet and shows a
+      // preview of what would be written — nothing is saved until Confirm.
+      async function runSheetCheck() {
+        const studentNameVal = nameInput.value.trim();
+        const registerNoVal = regInput.value.trim();
+
+        sheetNameOut.textContent = studentNameVal || '—';
+        sheetRegOut.textContent = registerNoVal || '—';
+        sheetTable.innerHTML = '';
+        sheetConfirmBtn.disabled = true;
+
+        if (!studentNameVal || !REGNO_PATTERN.test(registerNoVal)) {
+          setSheetStatus('Enter the student name and a valid register number first.', 'error');
+          return;
+        }
+
+        setSheetStatus('Checking your details against the sheet…', 'muted');
+
+        try {
+          const res = await authFetch('/api/sheets/add', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ registerNo: registerNoVal, studentName: studentNameVal, semester: currentSemester, dryRun: true })
+          });
+          const data = await res.json();
+          if (!res.ok || !data.match) {
+            setSheetStatus(data.error || 'Could not verify your details against the sheet.', 'error');
+            return;
+          }
+          setSheetStatus('Details verified — review the marks below, then confirm.', 'ok');
+          renderSheetPreview(data.preview);
+          sheetConfirmBtn.disabled = false;
+        } catch (err) {
+          setSheetStatus('Could not reach the server. Try again.', 'error');
+        }
+      }
+
+      sheetOpenBtn.addEventListener('click', () => {
+        openSheetModal();
+        runSheetCheck();
+      });
+      sheetCancelBtn.addEventListener('click', closeSheetModal);
+      sheetCloseBtn.addEventListener('click', closeSheetModal);
+
+      sheetConfirmBtn.addEventListener('click', async () => {
+        sheetConfirmBtn.disabled = true;
+        sheetConfirmBtn.textContent = 'Saving…';
+        setSheetStatus('Saving to the sheet…', 'muted');
+        try {
+          const res = await authFetch('/api/sheets/add', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              registerNo: regInput.value.trim(),
+              studentName: nameInput.value.trim(),
+              semester: currentSemester,
+              dryRun: false
+            })
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || 'Could not save to the sheet.');
+          setSheetStatus('Saved to the sheet.', 'ok');
+          sheetConfirmBtn.textContent = 'Saved';
+          setTimeout(closeSheetModal, 1200);
+        } catch (err) {
+          setSheetStatus(err.message, 'error');
+          sheetConfirmBtn.disabled = false;
+          sheetConfirmBtn.textContent = 'Confirm & Save';
+        }
+      });
+
+      // ---- Admin: bulk convert to Sheets --------------------------------------
+      const ADMIN_EMAIL = 'ragula25cs@srishakthi.ac.in';
+      const adminCard = document.getElementById('adminCard');
+      if (currentUser && currentUser.email && currentUser.email.toLowerCase() === ADMIN_EMAIL) {
+        adminCard.style.display = 'block';
+
+        const adminSemesterSel = document.getElementById('adminSemester');
+        const adminSheetIdInput = document.getElementById('adminSheetId');
+        const adminConvertBtn = document.getElementById('adminConvertBtn');
+        const adminStatus = document.getElementById('adminStatus');
+        const adminResults = document.getElementById('adminResults');
+
+        adminConvertBtn.addEventListener('click', async () => {
+          const semester = Number(adminSemesterSel.value);
+          const sheetId = adminSheetIdInput.value.trim();
+
+          adminConvertBtn.disabled = true;
+          adminConvertBtn.textContent = 'Converting…';
+          adminStatus.textContent = 'Uploading every saved record for this semester — this can take a moment…';
+          adminResults.innerHTML = '';
+
+          try {
+            const res = await authFetch('/api/sheets/convert-all', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ semester, sheetId: sheetId || undefined })
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Bulk conversion failed.');
+
+            adminStatus.textContent = `Done — ${data.updated} of ${data.total} record(s) written${data.skipped.length ? `, ${data.skipped.length} skipped` : ''}.`;
+
+            if (data.skipped.length) {
+              const rows = data.skipped.map(s => `<tr><td class="code">${s.registerNo}</td><td>${s.reason}</td></tr>`).join('');
+              adminResults.innerHTML = `<table><thead><tr><th>Register No</th><th>Reason skipped</th></tr></thead><tbody>${rows}</tbody></table>`;
+            }
+          } catch (err) {
+            adminStatus.textContent = err.message;
+          } finally {
+            adminConvertBtn.disabled = false;
+            adminConvertBtn.textContent = 'Convert All to Sheets';
+          }
+        });
+      }
+
+      // ---- Initial render ----------------------------------------------------
+      renderSubjects();
+    }
+  </script>
 </body>
+
 </html>

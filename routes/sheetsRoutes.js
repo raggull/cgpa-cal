@@ -29,16 +29,14 @@ function requireAdmin(req, res, next) {
   next();
 }
 
-// Same "pending arrear" rule as GET /api/grades/arrears/:registerNo —
-// a course first failed and never since cleared — but scoped to records
-// up to and including the given semester, and returning just the count.
+// weighted arrear count: subjects with arrearCount:2 (blended theory+lab) count as 2.
 async function countStandingArrears(registerNo, uptoSemester) {
   const records = await GradeRecord.find({ registerNo, semester: { $lte: uptoSemester } }).sort({ semester: 1 });
   const attempts = new Map();
   records.forEach(record => {
     record.subjects.forEach(s => {
       if (!attempts.has(s.code)) attempts.set(s.code, []);
-      attempts.get(s.code).push({ semester: record.semester, grade: s.grade });
+      attempts.get(s.code).push({ semester: record.semester, grade: s.grade, arrearCount: s.arrearCount || 1 });
     });
   });
   let pending = 0;
@@ -46,7 +44,7 @@ async function countStandingArrears(registerNo, uptoSemester) {
     const firstFail = list.find(a => a.grade === 'U');
     if (!firstFail) return;
     const cleared = list.find(a => a.semester > firstFail.semester && a.grade !== 'U');
-    if (!cleared) pending += 1;
+    if (!cleared) pending += firstFail.arrearCount;
   });
   return pending;
 }
@@ -78,7 +76,7 @@ router.post('/add', async (req, res) => {
       return res.status(404).json({ error: `No saved record for semester ${semester} yet — click Calculate first.` });
     }
 
-    const { sheets, tab, grid } = await sheetsSvc.loadGrid(sheetId, process.env.GOOGLE_SHEET_TAB);
+    const { sheets, tab, grid } = await sheetsSvc.loadGrid(sheetId, process.env.GOOGLE_SHEET_TAB, semester);
     const colMap = sheetsSvc.locateColumns(grid, record.subjects.map(s => s.code));
 
     if (colMap.regNoCol === -1 || colMap.dataStartRow === -1) {
@@ -150,16 +148,28 @@ router.post('/convert-all', requireAdmin, async (req, res) => {
       return res.json({ total: 0, updated: 0, skipped: [] });
     }
 
-    const { sheets, tab, grid } = await sheetsSvc.loadGrid(sheetId, process.env.GOOGLE_SHEET_TAB);
+    const { sheets, tab, grid } = await sheetsSvc.loadGrid(sheetId, process.env.GOOGLE_SHEET_TAB, semester);
 
-    // One shared column map, built from the union of every subject code
-    // across all records — covers everyone even if records differ slightly.
+    // One shared column map built from the union of every subject code.
     const allCodes = new Set();
     records.forEach(r => r.subjects.forEach(s => allCodes.add(s.code)));
     const colMap = sheetsSvc.locateColumns(grid, [...allCodes]);
 
     if (colMap.regNoCol === -1 || colMap.dataStartRow === -1) {
       return res.status(500).json({ error: 'Could not find a "Reg. No" header in the sheet — check the template layout.' });
+    }
+
+    // For semester-2 writes, pre-load each student's sem-1 record so we can
+    // populate the "Current No. of Arrears (I)" column from the database.
+    let sem1RecordMap = new Map(); // registerNo -> weighted arrear count from sem 1
+    if (semester === 2) {
+      const sem1Records = await GradeRecord.find({ semester: 1, registerNo: { $in: records.map(r => r.registerNo) } });
+      sem1Records.forEach(r => {
+        const count = r.subjects
+          .filter(s => s.grade === 'U')
+          .reduce((sum, s) => sum + (s.arrearCount || 1), 0);
+        sem1RecordMap.set(r.registerNo, count);
+      });
     }
 
     const allUpdates = [];
@@ -173,7 +183,8 @@ router.post('/convert-all', requireAdmin, async (req, res) => {
         continue;
       }
       const standingArrears = await countStandingArrears(record.registerNo, semester);
-      const { updates } = sheetsSvc.buildRowUpdates({ tab, colMap, rowIndex, record, standingArrears });
+      const sem1Arrears = sem1RecordMap.get(record.registerNo) ?? null;
+      const { updates } = sheetsSvc.buildRowUpdates({ tab, colMap, rowIndex, record, standingArrears, sem1Arrears });
       if (!updates.length) {
         skipped.push({ registerNo: record.registerNo, reason: 'No matching subject columns for this record.' });
         continue;

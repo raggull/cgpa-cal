@@ -31,11 +31,12 @@ const gradeRecordSchema = new mongoose.Schema({
     credit: Number,
     grade: String,
     gradePoint: Number,                     // null for audit/non-credit courses
+    arrearCount: { type: Number, default: 1 }, // weighted arrear value (2 for blended theory+lab)
     isArrearClearance: { type: Boolean, default: false },
     originalSemester: { type: Number, default: null }
   }],
-  sgpa: Number,          // this semester's own SGPA — regular courses only
-  totalCredits: Number,  // credit base used for that SGPA
+  sgpa: Number,
+  totalCredits: Number,
   updatedAt: { type: Date, default: Date.now }
 });
 gradeRecordSchema.index({ registerNo: 1, semester: 1 }, { unique: true });
@@ -191,7 +192,8 @@ router.get('/arrears/:registerNo', async (req, res) => {
           semester: record.semester,
           grade: s.grade,
           title: s.title,
-          credit: s.credit
+          credit: s.credit,
+          arrearCount: s.arrearCount || 1
         });
       });
     });
@@ -208,6 +210,7 @@ router.get('/arrears/:registerNo', async (req, res) => {
         code,
         title: firstFail.title,
         credit: firstFail.credit,
+        arrearCount: firstFail.arrearCount,   // weighted value (1 or 2)
         failedInSemester: firstFail.semester,
         status: clearingAttempt ? 'cleared' : 'pending',
         clearedInSemester: clearingAttempt ? clearingAttempt.semester : (stillFailingLater ? stillFailingLater.semester : null),
