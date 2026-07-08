@@ -211,22 +211,27 @@
 
   /* action + result */
   .action-row{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;}
-  button#calcBtn{
-    font-family:var(--font-display);
-    font-weight:600;
-    font-size:15px;
-    background:var(--green);
-    color:#fff;
-    border:none;
-    padding:13px 26px;
-    border-radius:8px;
-    cursor:pointer;
-    transition:background .15s ease, transform .1s ease;
-  }
+  button#calcBtn{ font-family:var(--font-display); font-weight:600; font-size:15px; background:var(--green); color:#fff; border:none; 
+    padding:13px 26px; border-radius:8px; cursor:pointer; transition:background .15s ease, transform .1s ease; }
   button#calcBtn:hover{background:var(--green-deep);}
   button#calcBtn:active{transform:scale(0.98);}
   button#calcBtn:disabled{background:#a9b8ae;cursor:not-allowed;}
   #formMsg{font-size:13px;color:var(--red);}
+
+  .btn{ font-family:var(--font-display); font-weight:600; font-size:15px; background:var(--green); color:#fff; border:none; 
+    padding:13px 26px; border-radius:8px; cursor:pointer; transition:background .15s ease, transform .1s ease; }
+  .btn:hover{background:var(--green-deep);}
+  .btn:active{transform:scale(0.98);}
+  .btn:disabled{background:#a9b8ae;cursor:not-allowed;}
+
+  .btn-pri { background: var(--green-deep); color: #fff; border: none; border-radius: 10px; padding: 9px 20px; font-size: 13px; 
+  font-weight: 600; cursor: pointer; font-family: var(--font-display); }
+  .btn-pri:hover { background: var(--green); }
+  .btn-pri:disabled { background:#a9b8ae; cursor:not-allowed; }
+
+  .btn-sec { background: #fff; color: var(--ink-soft); border: 1.5px solid var(--line); border-radius: 10px; padding: 8px 20px;
+  font-size: 13px; font-weight: 600; cursor: pointer; font-family: var(--font-display); }
+  .btn-sec:hover { border-color: var(--ink-soft); color: var(--ink); }
 
   #result{
     display:none;
@@ -259,6 +264,20 @@
   .status-pill.cleared{background:var(--green-tint);color:var(--green-deep);}
   .status-pill.pending{background:var(--red-tint);color:var(--red);}
   #noArrearsNote{display:none;font-size:13px;color:var(--ink-soft);}
+
+  .modal-bg { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.38); backdrop-filter: blur(5px); z-index: 700; display: flex; align-items: center;
+   justify-content: center; opacity: 0; pointer-events: none; transition: all .25s; }
+   .modal-title { font-family: var(--font-display); font-size: 19px; font-weight: 700; color: var(--ink); }
+   .modal-hd { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px; }
+  .modal-bg.open { opacity: 1; pointer-events: all; }
+  .modal-close { width: 30px; height: 30px; border-radius: 8px; background: var(--green-tint); border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; 
+    cursor: pointer; font-size: 15px; color: var(--ink-soft); transition: all .2s; flex-shrink: 0; }
+  .modal-close:hover { background: var(--red-tint); color: var(--red); }
+  .modal-card{background:var(--card);border-radius:16px;padding:22px;}
+  #m-status{font-size:13px;margin:10px 0;}
+  #m-dc-table table{margin-bottom:4px;}
+  #m-dc-table thead th{font-size:11px;padding:0 8px 6px;}
+  #m-dc-table tbody td{padding:6px 8px;font-size:13px;}
 </style>
 </head>
 <body>
@@ -282,8 +301,8 @@
       <button type="button" class="sem-btn" data-sem="2">Semester 2</button>
     </div>
     <div id="contextNote"></div>
+    <div class="hint" style="font-size:14px;">Your grades are saved and preserved for future semester CGPA Calculation, use correct register number.</div>
   </div>
-
   <div class="card">
     <h2>Student</h2>
     <div class="reg-row">
@@ -293,8 +312,8 @@
       </div>
       <div class="reg-field">
         <label for="regNo">Register number</label>
-        <input type="text" id="regNo" placeholder="714025104XXX" maxlength="12" autocomplete="off">
-        <div class="hint" id="regHint">Format: 71402 followed by 7 digits (12 digits total)</div>
+        <input type="text" id="regNo" value="714025104" maxlength="12" autocomplete="off" required>
+        <div class="hint" id="regHint">Format: 714025104XXX (12 digits total)</div>
       </div>
     </div>
   </div>
@@ -305,9 +324,9 @@
       <thead>
         <tr>
           <th style="width:24px;">#</th>
-          <th>Course</th>
-          <th style="width:110px;">Credit weight</th>
-          <th style="width:100px;">Grade</th>
+          <th style="font-size: 13px;font-family: var(--font-mono);">Course</th>
+          <th style="width:110px;font-size: 13px;font-family: var(--font-mono);">Credit</th>
+          <th style="width:100px;font-size: 13px;font-family: var(--font-mono);">Grade</th>
         </tr>
       </thead>
       <tbody id="subjectBody"></tbody>
@@ -315,8 +334,9 @@
   </div>
 
   <div class="card">
-    <div class="action-row">
+    <div class="sem-toggle" style="justify-content: right;">
       <div id="formMsg"></div>
+      <button class="btn" id="addSheetOpenBtn" type="button">Add to Sheet</button>
       <button id="calcBtn">Calculate</button>
     </div>
 
@@ -354,13 +374,59 @@
     <div id="noArrearsNote">No arrears on record — clean sheet.</div>
   </div>
 
+  <div class="modal-bg" id="addSheetBtn">
+    <div class="modal-card" style="max-width: 440px;">
+      <div class="modal-hd">
+        <div>
+            <div class="modal-title">Confirm entry</div>
+            <div style="font-size: 11.5px; color: var(--ink-soft); margin-top: 3px;"><span>Add this semester's marks to the academic sheet</span></div>
+        </div>
+        <div class="modal-close" id="addSheetCloseBtn">✖</div>
+      </div>
+
+      <div style="padding-bottom: 10px;">
+          <div>
+            <span>Your Name: <strong id="m-name">—</strong></span><br>
+            <span>Register No: <strong id="m-regno">—</strong></span>
+          </div>
+          <div id="m-status">Checking your details…</div>
+          <div id="m-dc-table" style="overflow-x:auto;margin-bottom:4px;"></div>
+          <div style="margin-top:8px;font-size:13px;color:var(--ink-soft);">
+              Double-check the marks above before confirming — this writes straight to the sheet.
+          </div>
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:10px;padding-top:10px;border-top:1px solid var(--line);">
+        <button class="btn-sec" type="button" id="addSheetCancelBtn">Cancel</button>
+        <button class="btn-pri" type="button" id="addSheetConfirmBtn" disabled>Confirm & Save</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" id="adminCard" style="display:none;">
+    <h2>Admin — Bulk Convert to Sheets</h2>
+    <div class="reg-row" style="align-items:flex-end;">
+      <div class="reg-field" style="min-width:160px;flex:0 0 160px;">
+        <label for="adminSemester">Semester</label>
+        <select id="adminSemester" style="width:100%;font-family:var(--font-body);font-size:15px;padding:12px 14px;border:1.5px solid var(--line);border-radius:8px;background:#fbfcfb;color:var(--ink);">
+          <option value="1">Semester 1</option>
+          <option value="2">Semester 2</option>
+        </select>
+      </div>
+      <div class="reg-field">
+        <label for="adminSheetId">Sheet ID (optional override)</label>
+        <input type="text" id="adminSheetId" placeholder="Leave blank to use the default sheet">
+      </div>
+    </div>
+    <div style="margin-top:16px;">
+      <button class="btn" id="adminConvertBtn" type="button">Convert All to Sheets</button>
+    </div>
+    <div id="adminStatus" style="margin-top:12px;font-size:13px;color:var(--ink-soft);"></div>
+    <div id="adminResults" style="margin-top:8px;"></div>
+  </div>
+
 </div>
 
 <script>
-  // ---- Auth guard ------------------------------------------------------
-  // This page requires a signed-in account. authFetch() attaches the
-  // stored token to every API call below and bounces back to the login
-  // page if the token is missing or the server rejects it as expired.
   function getToken() { return localStorage.getItem('cgpa_token'); }
 
   function goToLogin(expired) {
@@ -379,10 +445,6 @@
     return res;
   }
 
-  // ---- Auto sign-out when the 30-minute session expires -----------------
-  // Tokens are minted with a 30-minute expiry (server-side, in authRoutes.js).
-  // Reading that same expiry out of the token lets the page log the student
-  // out right on time, instead of waiting for their next API call to fail.
   function getTokenExpiryMs(token) {
     try {
       const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
@@ -423,9 +485,7 @@
   })();
 
   function initApp(currentUser) {
-  // ---- Grade scale -------------------------------------------------
-  // AR2025 regulation, confirmed formula:
-  // S=10, A+=9, A=8, B+=7, B=6.5, C+=6, C=5, else 0.
+
   const GRADE_POINTS = { 'S':10, 'A+':9, 'A':8, 'B+':7, 'B':6.5, 'C+':6, 'C':5, 'U':0 };
   const GRADE_OPTIONS = Object.keys(GRADE_POINTS);
   const AUDIT_OPTIONS = ['S','U']; // Satisfactory / Unsatisfactory — not credit-weighted
@@ -434,31 +494,31 @@
   // ---- Curriculum, by semester (same order as the syllabus) --------
   const SUBJECTS_BY_SEM = {
     1: [
-      { code:'25ENH101', title:'Professional English', category:'HS', credit:3 },
-      { code:'25MAB101', title:'Engineering Mathematics', category:'BS', credit:4 },
-      { code:'25ECE101', title:'Digital Principles and Computer Organization', category:'ES', credit:3 },
-      { code:'25TAH101', title:'Heritage of Tamils', category:'HS', credit:1 },
-      { code:'25CSE101', title:'Computational Thinking and Problem Solving', category:'ES', credit:3 },
-      { code:'25ITC121', title:'Front End Technologies', category:'PC', credit:4 },
-      { code:'25CSS111', title:'Engineering Exploration I', category:'SD', credit:1 },
-      { code:'25AGB111', title:'Crop Production Laboratory', category:'BS', credit:1 },
-      { code:'25MEB111', title:'Automobile Engine assembly Laboratory', category:'BS', credit:1 },
-      { code:'25CSE111', title:'Computational Thinking and Problem Solving laboratory', category:'ES', credit:1 },
-      { code:'25ENS111', title:'Soft Skills', category:'SD', credit:1 },
-      { code:'25HSH101', title:'Engineering Economics', category:'HS', credit:0, audit:true },
+      { code:'25ENH101', title:'Professional English', credit:3 },
+      { code:'25MAB101', title:'Engineering Mathematics', credit:4 },
+      { code:'25ECE101', title:'Digital Principles and Computer Organization', credit:3 },
+      { code:'25TAH101', title:'Heritage of Tamils', credit:1 },
+      { code:'25CSE101', title:'Computational Thinking and Problem Solving', credit:3 },
+      { code:'25ITC121', title:'Front End Technologies', credit:4 },
+      { code:'25CSS111', title:'Engineering Exploration I', credit:1 },
+      { code:'25AGB111', title:'Crop Production Laboratory', credit:1 },
+      { code:'25MEB111', title:'Automobile Engine assembly Laboratory', credit:1 },
+      { code:'25CSE111', title:'Computational Thinking and Problem Solving laboratory', credit:1 },
+      { code:'25ENS111', title:'Soft Skills', credit:1 },
+      { code:'25HSH101', title:'Engineering Economics', credit:0, audit:true },
     ],
     2: [
-      { code:'25ENH201', title:'English for Career Growth', category:'HS', credit:3 },
-      { code:'25MAB201', title:'Discrete Mathematics And Graph Theory', category:'BS', credit:3 },
-      { code:'25TAH201', title:'Tamils and Technology', category:'HS', credit:1 },
-      { code:'25ITC201', title:'Web Programming Concepts', category:'PC', credit:3 },
-      { code:'25CSC221', title:'Advanced JAVA Programming', category:'PC', credit:4 },
-      { code:'25CSC222', title:'Data Structures and Algorithms I', category:'PC', credit:4 },
-      { code:'25CSS211', title:'Engineering Exploration II', category:'SD', credit:1 },
-      { code:'25MES112', title:'Design Thinking Engineering Laboratory', category:'SD', credit:1 },
-      { code:'25CSC211', title:'Web Programming laboratory', category:'PC', credit:1 },
-      { code:'25ENS211', title:'Personality Development', category:'SD', credit:1 },
-      { code:'25HSH102', title:'Psychology', category:'HS', credit:0, audit:true },
+      { code:'25ENH201', title:'English for Career Growth', credit:3 },
+      { code:'25MAB201', title:'Discrete Mathematics And Graph Theory', credit:3 },
+      { code:'25TAH201', title:'Tamils and Technology', credit:1 },
+      { code:'25ITC201', title:'Web Programming Concepts', credit:3 },
+      { code:'25CSC221', title:'Advanced JAVA Programming', credit:4 },
+      { code:'25CSC222', title:'Data Structures and Algorithms I', credit:4 },
+      { code:'25CSS211', title:'Engineering Exploration II', credit:1 },
+      { code:'25MES112', title:'Design Thinking Engineering Laboratory', credit:1 },
+      { code:'25CSC211', title:'Web Programming laboratory', credit:1 },
+      { code:'25ENS211', title:'Personality Development', credit:1 },
+      { code:'25HSH102', title:'Psychology', credit:0, audit:true },
     ],
   };
 
@@ -512,7 +572,7 @@
 
       const catTag = s.arrear
         ? `<span class="cat arrear-cat">ARREAR · SEM ${s.originalSemester}</span>`
-        : `<span class="cat">${s.category}</span>`;
+        : ``;
 
       tr.innerHTML = `
         <td>${i + 1}</td>
@@ -784,6 +844,150 @@
       calcBtn.textContent = 'Calculate';
     }
   });
+
+  // ---- Add to Sheet -------------------------------------------------------
+  const sheetModal = document.getElementById('addSheetBtn');
+  const sheetStatus = document.getElementById('m-status');
+  const sheetNameOut = document.getElementById('m-name');
+  const sheetRegOut = document.getElementById('m-regno');
+  const sheetTable = document.getElementById('m-dc-table');
+  const sheetOpenBtn = document.getElementById('addSheetOpenBtn');
+  const sheetCancelBtn = document.getElementById('addSheetCancelBtn');
+  const sheetCloseBtn = document.getElementById('addSheetCloseBtn');
+  const sheetConfirmBtn = document.getElementById('addSheetConfirmBtn');
+
+  function openSheetModal() { sheetModal.classList.add('open'); }
+  function closeSheetModal() { sheetModal.classList.remove('open'); }
+
+  function setSheetStatus(text, tone) {
+    sheetStatus.textContent = text;
+    sheetStatus.style.color = tone === 'error' ? 'var(--red)' : tone === 'ok' ? 'var(--green-deep)' : 'var(--ink-soft)';
+  }
+
+  function renderSheetPreview(preview) {
+    if (!preview || !preview.length) {
+      sheetTable.innerHTML = '<div class="hint">No subjects in this record match the sheet\'s columns.</div>';
+      return;
+    }
+    const rows = preview.map(p => `<tr><td class="code">${p.code}</td><td>${p.grade}</td></tr>`).join('');
+    sheetTable.innerHTML = `<table><thead><tr><th>Course</th><th>Grade</th></tr></thead><tbody>${rows}</tbody></table>`;
+  }
+
+  // Checks the typed name + register number against the sheet and shows a
+  // preview of what would be written — nothing is saved until Confirm.
+  async function runSheetCheck() {
+    const studentNameVal = nameInput.value.trim();
+    const registerNoVal = regInput.value.trim();
+
+    sheetNameOut.textContent = studentNameVal || '—';
+    sheetRegOut.textContent = registerNoVal || '—';
+    sheetTable.innerHTML = '';
+    sheetConfirmBtn.disabled = true;
+
+    if (!studentNameVal || !REGNO_PATTERN.test(registerNoVal)) {
+      setSheetStatus('Enter the student name and a valid register number first.', 'error');
+      return;
+    }
+
+    setSheetStatus('Checking your details against the sheet…', 'muted');
+
+    try {
+      const res = await authFetch('/api/sheets/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ registerNo: registerNoVal, studentName: studentNameVal, semester: currentSemester, dryRun: true })
+      });
+      const data = await res.json();
+      if (!res.ok || !data.match) {
+        setSheetStatus(data.error || 'Could not verify your details against the sheet.', 'error');
+        return;
+      }
+      setSheetStatus('Details verified — review the marks below, then confirm.', 'ok');
+      renderSheetPreview(data.preview);
+      sheetConfirmBtn.disabled = false;
+    } catch (err) {
+      setSheetStatus('Could not reach the server. Try again.', 'error');
+    }
+  }
+
+  sheetOpenBtn.addEventListener('click', () => {
+    openSheetModal();
+    runSheetCheck();
+  });
+  sheetCancelBtn.addEventListener('click', closeSheetModal);
+  sheetCloseBtn.addEventListener('click', closeSheetModal);
+
+  sheetConfirmBtn.addEventListener('click', async () => {
+    sheetConfirmBtn.disabled = true;
+    sheetConfirmBtn.textContent = 'Saving…';
+    setSheetStatus('Saving to the sheet…', 'muted');
+    try {
+      const res = await authFetch('/api/sheets/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          registerNo: regInput.value.trim(),
+          studentName: nameInput.value.trim(),
+          semester: currentSemester,
+          dryRun: false
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Could not save to the sheet.');
+      setSheetStatus('Saved to the sheet.', 'ok');
+      sheetConfirmBtn.textContent = 'Saved';
+      setTimeout(closeSheetModal, 1200);
+    } catch (err) {
+      setSheetStatus(err.message, 'error');
+      sheetConfirmBtn.disabled = false;
+      sheetConfirmBtn.textContent = 'Confirm & Save';
+    }
+  });
+
+  // ---- Admin: bulk convert to Sheets --------------------------------------
+  const ADMIN_EMAIL = 'ragula25cs@srishakthi.ac.in';
+  const adminCard = document.getElementById('adminCard');
+  if (currentUser && currentUser.email && currentUser.email.toLowerCase() === ADMIN_EMAIL) {
+    adminCard.style.display = 'block';
+
+    const adminSemesterSel = document.getElementById('adminSemester');
+    const adminSheetIdInput = document.getElementById('adminSheetId');
+    const adminConvertBtn = document.getElementById('adminConvertBtn');
+    const adminStatus = document.getElementById('adminStatus');
+    const adminResults = document.getElementById('adminResults');
+
+    adminConvertBtn.addEventListener('click', async () => {
+      const semester = Number(adminSemesterSel.value);
+      const sheetId = adminSheetIdInput.value.trim();
+
+      adminConvertBtn.disabled = true;
+      adminConvertBtn.textContent = 'Converting…';
+      adminStatus.textContent = 'Uploading every saved record for this semester — this can take a moment…';
+      adminResults.innerHTML = '';
+
+      try {
+        const res = await authFetch('/api/sheets/convert-all', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ semester, sheetId: sheetId || undefined })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Bulk conversion failed.');
+
+        adminStatus.textContent = `Done — ${data.updated} of ${data.total} record(s) written${data.skipped.length ? `, ${data.skipped.length} skipped` : ''}.`;
+
+        if (data.skipped.length) {
+          const rows = data.skipped.map(s => `<tr><td class="code">${s.registerNo}</td><td>${s.reason}</td></tr>`).join('');
+          adminResults.innerHTML = `<table><thead><tr><th>Register No</th><th>Reason skipped</th></tr></thead><tbody>${rows}</tbody></table>`;
+        }
+      } catch (err) {
+        adminStatus.textContent = err.message;
+      } finally {
+        adminConvertBtn.disabled = false;
+        adminConvertBtn.textContent = 'Convert All to Sheets';
+      }
+    });
+  }
 
   // ---- Initial render ----------------------------------------------------
   renderSubjects();

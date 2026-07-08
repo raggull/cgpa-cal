@@ -7,6 +7,7 @@ const mongoose = require('mongoose');
 
 const cgpaRoutes = require('./routes/cgpaRoutes');
 const authRoutes = require('./routes/authRoutes');
+const sheetsRoutes = require('./routes/sheetsRoutes');
 const requireAuth = require('./middleware/authMiddleware');
 
 const app = express();
@@ -26,8 +27,9 @@ app.get('/cgpa.html', (req, res) => {
 });
 
 // API routes
-app.use('/api/auth', authRoutes);          // public: register, login, google, config
+app.use('/api/auth', authRoutes);          // public: google sign-in, config, me
 app.use('/api/grades', requireAuth, cgpaRoutes); // protected: needs a signed-in account
+app.use('/api/sheets', requireAuth, sheetsRoutes); // protected: add-to-sheet + admin bulk convert
 
 // Connect to MongoDB, then start the server only once the connection is up
 mongoose.connect(process.env.MONGODB_URI)

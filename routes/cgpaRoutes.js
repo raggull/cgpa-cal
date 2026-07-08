@@ -68,6 +68,7 @@ router.post('/:semester', async (req, res) => {
       { upsert: true, new: true, setDefaultsOnInsert: true }
     );
 
+
     // Remember this register number on the signed-in account so future
     // sign-ins can load this student's saved semester data automatically.
     if (req.user && req.user.id) {
@@ -224,3 +225,5 @@ router.get('/arrears/:registerNo', async (req, res) => {
 });
 
 module.exports = router;
+module.exports.GradeRecord = GradeRecord;
+module.exports.REGNO_PATTERN = REGNO_PATTERN;
